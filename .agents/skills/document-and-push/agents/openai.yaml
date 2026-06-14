@@ -1,0 +1,6 @@
+interface:
+  display_name: "日本語JavaDoc・コミット・プッシュ"
+  short_description: "日本語JavaDocを整備し、検証後に安全にコミットしてプッシュ"
+  default_prompt: "Use $document-and-push to add appropriate Japanese JavaDoc, validate the changes, commit them with a concise Japanese message, and push the current branch safely."
+policy:
+  allow_implicit_invocation: false
