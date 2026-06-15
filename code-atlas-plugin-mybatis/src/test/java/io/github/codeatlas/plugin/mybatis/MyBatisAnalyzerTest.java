@@ -47,6 +47,7 @@ class MyBatisAnalyzerTest {
                 List.of(),
                 List.of(),
                 List.of(),
+                List.of(),
                 List.of());
 
         var source = new SourceScanner().scan(tempDir);

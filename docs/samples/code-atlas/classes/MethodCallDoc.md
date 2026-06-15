@@ -1,11 +1,11 @@
-# MyBatisMapperDoc
+# MethodCallDoc
 
 ## Summary
 
-* Package: `io.github.codeatlas.plugin.mybatis`
+* Package: `io.github.codeatlas.core.model`
 * Declaration: `TYPE`
 * Type: `UNKNOWN`
-* Source: `code-atlas-plugin-mybatis/src/main/java/io/github/codeatlas/plugin/mybatis/MyBatisMapperDoc.java`
+* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/MethodCallDoc.java`
 
 ## Role
 
@@ -45,4 +45,5 @@ None
 
 | Source | Relation | Member |
 | --- | --- | --- |
-| [MyBatisMapperXmlParser](MyBatisMapperXmlParser.md) | METHOD_RETURN_TYPE | parse |
+| [JavaAnalyzer](JavaAnalyzer.md) | METHOD_RETURN_TYPE | analyzeMethodCalls |
+| [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | methodCalls |

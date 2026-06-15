@@ -69,6 +69,7 @@ class AnalysisEngineTest {
                         currentResult.endpoints(),
                         configs,
                         currentResult.relations(),
+                        currentResult.methodCalls(),
                         currentResult.sqlStatements(),
                         currentResult.tableUsages());
             }

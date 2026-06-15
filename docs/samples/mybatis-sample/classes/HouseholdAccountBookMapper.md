@@ -30,6 +30,12 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| - | - | - | - |
+
 ## Related Classes
 
 ### Outgoing References
@@ -52,3 +58,13 @@
 | SELECT | findByMonth | household_account_book, category | `src/main/resources/mapper/HouseholdAccountBookMapper.xml` |
 | INSERT | insert | household_account_book | `src/main/resources/mapper/HouseholdAccountBookMapper.xml` |
 | UPDATE | update | household_account_book | `src/main/resources/mapper/HouseholdAccountBookMapper.xml` |
+
+## Related Tables
+
+| Table | Statement | Usage |
+| --- | --- | --- |
+| category | findByMonth | SELECT |
+| household_account_book | deleteById | DELETE |
+| household_account_book | findByMonth | SELECT |
+| household_account_book | insert | INSERT |
+| household_account_book | update | UPDATE |

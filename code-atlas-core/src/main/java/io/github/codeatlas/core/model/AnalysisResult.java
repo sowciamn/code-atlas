@@ -10,6 +10,7 @@ import java.util.List;
  * @param endpoints 検出したAPIエンドポイント
  * @param configs 検出した設定ファイル
  * @param relations 検出した同一プロジェクト内のクラス間参照
+ * @param methodCalls 検出したJavaメソッド呼び出し
  * @param sqlStatements 検出したSQL文
  * @param tableUsages 検出したテーブル利用箇所
  */
@@ -19,6 +20,7 @@ public record AnalysisResult(
         List<ApiEndpointDoc> endpoints,
         List<ConfigDoc> configs,
         List<ClassRelationDoc> relations,
+        List<MethodCallDoc> methodCalls,
         List<SqlStatementDoc> sqlStatements,
         List<TableUsageDoc> tableUsages
 ) {
@@ -27,6 +29,7 @@ public record AnalysisResult(
         endpoints = List.copyOf(endpoints);
         configs = List.copyOf(configs);
         relations = List.copyOf(relations);
+        methodCalls = List.copyOf(methodCalls);
         sqlStatements = List.copyOf(sqlStatements);
         tableUsages = List.copyOf(tableUsages);
     }

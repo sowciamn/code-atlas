@@ -14,7 +14,9 @@ import picocli.CommandLine.Option;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 /**
@@ -59,6 +61,10 @@ public final class CodeAtlasCli implements Runnable {
                 description = "Directory for generated Markdown.")
         private Path outputDirectory;
 
+        @Option(names = "--exclude", paramLabel = "<path>", split = ",",
+                description = "Directory name or source-relative path to exclude. Repeatable.")
+        private List<String> excludes = List.of();
+
         /**
          * 入力検証、ソース収集、プラグイン選択、解析、Markdown生成を順に実行する。
          *
@@ -72,7 +78,8 @@ public final class CodeAtlasCli implements Runnable {
                 return 2;
             }
 
-            ProjectSource source = new SourceScanner().scan(sourceDirectory);
+            Set<String> additionalExcludes = new LinkedHashSet<>(excludes);
+            ProjectSource source = new SourceScanner(additionalExcludes).scan(sourceDirectory);
             AnalysisEngine engine = new AnalysisEngine(List.of(
                     new JavaAnalyzer(),
                     new SpringBootAnalyzer(),

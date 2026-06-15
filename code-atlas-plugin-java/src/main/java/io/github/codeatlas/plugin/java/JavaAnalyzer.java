@@ -12,6 +12,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import io.github.codeatlas.core.model.AnalysisResult;
@@ -21,6 +22,7 @@ import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
 import io.github.codeatlas.core.model.FieldDoc;
 import io.github.codeatlas.core.model.MethodDoc;
+import io.github.codeatlas.core.model.MethodCallDoc;
 import io.github.codeatlas.core.model.ParameterDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.ProjectSource;
@@ -40,7 +42,8 @@ import java.util.Set;
  * JavaParserを使用してJavaソースの構文情報を抽出する解析プラグイン。
  *
  * <p>型解決は行わず、ソースに記述された型名、アノテーション、メソッド、
- * フィールド、および同一プロジェクト内クラスへの参照を解析結果へ変換する。</p>
+ * フィールド、メソッド呼び出し式、および同一プロジェクト内クラスへの参照を
+ * 解析結果へ変換する。</p>
  */
 public final class JavaAnalyzer implements CodeAnalyzerPlugin {
     private final JavaParser parser = new JavaParser(
@@ -78,6 +81,7 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
     public AnalysisResult analyze(ProjectSource source) {
         List<ClassDoc> classes = analyzeClasses(source);
         List<ClassRelationDoc> relations = analyzeRelations(source, classes);
+        List<MethodCallDoc> methodCalls = analyzeMethodCalls(source);
         List<ConfigDoc> configs = source.configFiles().stream()
                 .map(path -> new ConfigDoc(source.relativePath(path), path.getFileName().toString()))
                 .toList();
@@ -91,7 +95,48 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
                 0,
                 0);
         return new AnalysisResult(
-                overview, classes, List.of(), configs, relations, List.of(), List.of());
+                overview, classes, List.of(), configs, relations, methodCalls, List.of(), List.of());
+    }
+
+    /**
+     * 各Javaメソッド内のメソッド呼び出し式を構文木から抽出する。
+     *
+     * <p>型解決や呼び出し先クラスの特定は行わない。解析できないファイルは理由を
+     * 標準エラーへ出力し、残りのファイルの解析を継続する。</p>
+     *
+     * @param source 収集済みのプロジェクトソース情報
+     * @return 呼び出し元と式で安定した順序に並べたメソッド呼び出し
+     */
+    public List<MethodCallDoc> analyzeMethodCalls(ProjectSource source) {
+        List<MethodCallDoc> methodCalls = new ArrayList<>();
+        for (Path javaFile : source.javaFiles()) {
+            try {
+                CompilationUnit unit = parse(javaFile);
+                Path sourcePath = source.relativePath(javaFile);
+                for (TypeDeclaration<?> type : unit.getTypes()) {
+                    for (MethodDeclaration method : type.getMethods()) {
+                        method.findAll(MethodCallExpr.class).stream()
+                                .map(call -> new MethodCallDoc(
+                                        type.getNameAsString(),
+                                        method.getNameAsString(),
+                                        call.getScope().map(Object::toString).orElse(""),
+                                        call.getNameAsString(),
+                                        call.toString(),
+                                        sourcePath))
+                                .forEach(methodCalls::add);
+                    }
+                }
+            } catch (RuntimeException | IOException exception) {
+                System.err.printf("Failed to analyze method calls in %s: %s%n",
+                        javaFile, exception.getMessage());
+            }
+        }
+        return methodCalls.stream()
+                .sorted(Comparator.comparing(MethodCallDoc::sourceClassName)
+                        .thenComparing(MethodCallDoc::sourceMethodName)
+                        .thenComparing(call -> call.sourcePath().toString())
+                        .thenComparing(MethodCallDoc::expression))
+                .toList();
     }
 
     /**

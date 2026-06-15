@@ -28,6 +28,12 @@
 | id | `Long` | Id, GeneratedValue |
 | name | `String` |  |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| - | - | - | - |
+
 ## Related Classes
 
 ### Outgoing References

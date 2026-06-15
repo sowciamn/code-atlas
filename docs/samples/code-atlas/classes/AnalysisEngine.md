@@ -28,6 +28,26 @@ None
 | --- | --- | --- |
 | plugins | `List<CodeAnalyzerPlugin>` |  |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| analyze |  | emptyResult | `emptyResult(source)` |
+| analyze | plugin | analyze | `plugin.analyze(source, result)` |
+| analyze | plugin | supports | `plugin.supports(source)` |
+| analyze | source | rootDirectory | `source.rootDirectory()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | List | of | `List.of()` |
+| emptyResult | source | rootDirectory | `source.rootDirectory()` |
+| emptyResult | source | rootDirectory | `source.rootDirectory()` |
+| emptyResult | source.rootDirectory() | getFileName | `source.rootDirectory().getFileName()` |
+| emptyResult | source.rootDirectory().getFileName() | toString | `source.rootDirectory().getFileName().toString()` |
+
 ## Related Classes
 
 ### Outgoing References

@@ -28,6 +28,14 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| main | System | exit | `System.exit(exitCode)` |
+| main | new CommandLine(new CodeAtlasCli()) | execute | `new CommandLine(new CodeAtlasCli()).execute(args)` |
+| run | CommandLine | usage | `CommandLine.usage(this, System.out)` |
+
 ## Related Classes
 
 ### Outgoing References

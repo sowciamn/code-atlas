@@ -6,6 +6,7 @@ import io.github.codeatlas.core.model.ClassDoc;
 import io.github.codeatlas.core.model.ClassRelationDoc;
 import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
+import io.github.codeatlas.core.model.MethodCallDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.RelationType;
 import io.github.codeatlas.core.model.SqlStatementDoc;
@@ -87,6 +88,13 @@ class MarkdownRendererTest {
                                 "ExternalClient",
                                 RelationType.FIELD,
                                 "externalClient")),
+                List.of(new MethodCallDoc(
+                        "UserController",
+                        "findAll",
+                        "userService",
+                        "findAll",
+                        "userService.findAll()",
+                        Path.of("src/main/java/example/UserController.java"))),
                 List.of(statement),
                 List.of(new TableUsageDoc(
                         "users",
@@ -111,6 +119,8 @@ class MarkdownRendererTest {
                 .doesNotContain("[ExternalClient]");
         assertThat(tempDir.resolve("classes/UserController.md")).content()
                 .contains("## Role")
+                .contains("## Method Calls")
+                .contains("| findAll | userService | findAll | `userService.findAll()` |")
                 .contains("## Related Classes")
                 .contains("### Outgoing References")
                 .contains("| [UserService](UserService.md) | FIELD | userService |");
@@ -119,7 +129,9 @@ class MarkdownRendererTest {
                 .contains("| [UserController](UserController.md) | FIELD | userService |");
         assertThat(tempDir.resolve("classes/UserMapper.md")).content()
                 .contains("## MyBatis Statements")
-                .contains("| SELECT | findAll | users |");
+                .contains("| SELECT | findAll | users |")
+                .contains("## Related Tables")
+                .contains("| users | findAll | SELECT |");
         assertThat(tempDir.resolve("sql.md")).content()
                 .contains("example.UserMapper", "select * from users")
                 .contains("\\| active = true");

@@ -62,7 +62,7 @@ public final class MyBatisAnalyzer implements CodeAnalyzerPlugin {
                 source.rootDirectory(),
                 0, 0, 0, 0, 0, 0);
         AnalysisResult empty = new AnalysisResult(
-                overview, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+                overview, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
         return analyze(source, empty);
     }
 
@@ -97,6 +97,7 @@ public final class MyBatisAnalyzer implements CodeAnalyzerPlugin {
                 currentResult.endpoints(),
                 currentResult.configs(),
                 currentResult.relations(),
+                currentResult.methodCalls(),
                 statements,
                 tableUsages);
     }

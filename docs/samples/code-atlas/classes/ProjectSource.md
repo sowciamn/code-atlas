@@ -27,6 +27,14 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| relativePath | path | toAbsolutePath | `path.toAbsolutePath()` |
+| relativePath | path.toAbsolutePath() | normalize | `path.toAbsolutePath().normalize()` |
+| relativePath | rootDirectory | relativize | `rootDirectory.relativize(path.toAbsolutePath().normalize())` |
+
 ## Related Classes
 
 ### Outgoing References

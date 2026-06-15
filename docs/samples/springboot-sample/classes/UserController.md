@@ -30,6 +30,14 @@
 | --- | --- | --- |
 | userService | `UserService` |  |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| create | userService | create | `userService.create(request)` |
+| findAll | userService | findAll | `userService.findAll()` |
+| findById | userService | findById | `userService.findById(id)` |
+
 ## Related Classes
 
 ### Outgoing References

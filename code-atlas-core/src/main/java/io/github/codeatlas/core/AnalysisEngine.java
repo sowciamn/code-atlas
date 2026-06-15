@@ -51,6 +51,6 @@ public final class AnalysisEngine {
                 source.rootDirectory(),
                 0, 0, 0, 0, 0, 0);
         return new AnalysisResult(
-                overview, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+                overview, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
     }
 }

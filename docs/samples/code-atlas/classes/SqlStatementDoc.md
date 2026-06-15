@@ -27,6 +27,12 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| - | - | - | - |
+
 ## Related Classes
 
 ### Outgoing References
@@ -40,5 +46,6 @@ None
 | Source | Relation | Member |
 | --- | --- | --- |
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | statements |
+| [MarkdownRenderer](MarkdownRenderer.md) | METHOD_RETURN_TYPE | matchingMyBatisStatements |
 | [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_RETURN_TYPE | parseStatements |
 | [MyBatisMapperXmlParser](MyBatisMapperXmlParser.md) | METHOD_RETURN_TYPE | statements |

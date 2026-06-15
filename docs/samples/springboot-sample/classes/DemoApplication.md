@@ -27,6 +27,12 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| main | SpringApplication | run | `SpringApplication.run(DemoApplication.class, args)` |
+
 ## Related Classes
 
 ### Outgoing References

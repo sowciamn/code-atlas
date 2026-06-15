@@ -131,6 +131,43 @@ class JavaAnalyzerTest {
                         "TargetDto", RelationType.METHOD_RETURN_TYPE, "findAll"));
     }
 
+    @Test
+    void extractsScopedUnscopedThisAndMultipleMethodCalls() throws Exception {
+        write("UserController.java", """
+                class UserController {
+                    void findAll() {
+                        userService.findAll();
+                        helper();
+                    }
+
+                    void findOne() {
+                        this.helper();
+                    }
+
+                    void helper() {}
+                }
+                """);
+
+        AnalysisResult result = analyze();
+
+        assertThat(result.methodCalls())
+                .extracting(
+                        call -> call.sourceMethodName(),
+                        call -> call.scopeName(),
+                        call -> call.calledMethodName(),
+                        call -> call.expression())
+                .containsExactly(
+                        tuple("findAll", "", "helper", "helper()"),
+                        tuple("findAll", "userService", "findAll", "userService.findAll()"),
+                        tuple("findOne", "this", "helper", "this.helper()"));
+        assertThat(result.methodCalls())
+                .allSatisfy(call -> {
+                    assertThat(call.sourceClassName()).isEqualTo("UserController");
+                    assertThat(call.sourcePath()).isEqualTo(
+                            Path.of("src/main/java/example/UserController.java"));
+                });
+    }
+
     private AnalysisResult analyze() throws Exception {
         return new JavaAnalyzer().analyze(new SourceScanner().scan(tempDir));
     }

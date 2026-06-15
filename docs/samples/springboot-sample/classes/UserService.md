@@ -29,6 +29,12 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| findAll | List | of | `List.of()` |
+
 ## Related Classes
 
 ### Outgoing References

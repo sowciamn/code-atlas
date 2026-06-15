@@ -30,6 +30,12 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Calls
+
+| Source Method | Scope | Called Method | Expression |
+| --- | --- | --- | --- |
+| analyze |  | analyze | `analyze(source)` |
+
 ## Related Classes
 
 ### Outgoing References

@@ -6,6 +6,7 @@ import io.github.codeatlas.core.model.ClassDoc;
 import io.github.codeatlas.core.model.ClassRelationDoc;
 import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
+import io.github.codeatlas.core.model.MethodCallDoc;
 import io.github.codeatlas.core.model.MethodDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.SqlStatementDoc;
@@ -227,10 +228,38 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                     .append(" | ").append(cell(String.join(", ", field.annotations())))
                     .append(" |\n"));
         }
+        appendMethodCalls(markdown, classDoc.className(), result.methodCalls());
         appendRelatedClasses(
                 markdown, classDoc.className(), result.relations(), classNames(result.classes()));
-        appendMyBatisStatements(markdown, classDoc, result.sqlStatements());
+        List<SqlStatementDoc> mapperStatements =
+                matchingMyBatisStatements(classDoc, result.sqlStatements());
+        appendMyBatisStatements(markdown, mapperStatements);
+        appendRelatedTables(markdown, mapperStatements);
         return markdown.toString();
+    }
+
+    private void appendMethodCalls(
+            StringBuilder markdown,
+            String className,
+            List<MethodCallDoc> methodCalls
+    ) {
+        List<MethodCallDoc> matching = methodCalls.stream()
+                .filter(call -> call.sourceClassName().equals(className))
+                .sorted(Comparator.comparing(MethodCallDoc::sourceMethodName)
+                        .thenComparing(MethodCallDoc::expression))
+                .toList();
+        markdown.append("\n## Method Calls\n\n")
+                .append("| Source Method | Scope | Called Method | Expression |\n")
+                .append("| --- | --- | --- | --- |\n");
+        if (matching.isEmpty()) {
+            markdown.append("| - | - | - | - |\n");
+        } else {
+            matching.forEach(call -> markdown
+                    .append("| ").append(cell(call.sourceMethodName()))
+                    .append(" | ").append(cell(call.scopeName()))
+                    .append(" | ").append(cell(call.calledMethodName()))
+                    .append(" | `").append(cell(call.expression())).append("` |\n"));
+        }
     }
 
     private void appendRelatedClasses(
@@ -274,30 +303,59 @@ public final class MarkdownRenderer implements DocumentationRenderer {
         }
     }
 
-    private void appendMyBatisStatements(
-            StringBuilder markdown,
+    private List<SqlStatementDoc> matchingMyBatisStatements(
             ClassDoc classDoc,
             List<SqlStatementDoc> statements
     ) {
         String qualifiedName = classDoc.packageName().isEmpty()
                 ? classDoc.className()
                 : classDoc.packageName() + "." + classDoc.className();
-        List<SqlStatementDoc> matching = statements.stream()
+        return statements.stream()
                 .filter(statement -> statement.ownerName().equals(qualifiedName))
                 .sorted(Comparator.comparing(SqlStatementDoc::statementId))
                 .toList();
-        if (matching.isEmpty()) {
+    }
+
+    private void appendMyBatisStatements(
+            StringBuilder markdown,
+            List<SqlStatementDoc> statements
+    ) {
+        if (statements.isEmpty()) {
             return;
         }
 
         markdown.append("\n## MyBatis Statements\n\n")
                 .append("| Type | Statement ID | Tables | Source |\n")
                 .append("| --- | --- | --- | --- |\n");
-        matching.forEach(statement -> markdown
+        statements.forEach(statement -> markdown
                 .append("| ").append(statement.statementType())
                 .append(" | ").append(cell(statement.statementId()))
                 .append(" | ").append(cell(String.join(", ", statement.tableNames())))
                 .append(" | `").append(cell(statement.sourcePath().toString())).append("` |\n"));
+    }
+
+    private void appendRelatedTables(
+            StringBuilder markdown,
+            List<SqlStatementDoc> statements
+    ) {
+        if (statements.isEmpty()) {
+            return;
+        }
+        markdown.append("\n## Related Tables\n\n")
+                .append("| Table | Statement | Usage |\n")
+                .append("| --- | --- | --- |\n");
+        List<String> rows = statements.stream()
+                .flatMap(statement -> statement.tableNames().stream()
+                        .map(tableName -> "| " + cell(tableName)
+                                + " | " + cell(statement.statementId())
+                                + " | " + statement.statementType() + " |"))
+                .sorted()
+                .toList();
+        if (rows.isEmpty()) {
+            markdown.append("| - | - | - |\n");
+        } else {
+            rows.forEach(row -> markdown.append(row).append('\n'));
+        }
     }
 
     private List<ClassRelationDoc> sortedRelations(List<ClassRelationDoc> relations) {

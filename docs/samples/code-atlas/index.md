@@ -4,12 +4,12 @@
 
 * Project: `code-atlas`
 * Source: `/code-atlas`
-* Classes: 42
-* API Endpoints: 3
-* Controllers: 1
-* Services: 1
-* Repositories: 1
-* Entities: 1
+* Classes: 37
+* API Endpoints: 0
+* Controllers: 0
+* Services: 0
+* Repositories: 0
+* Entities: 0
 
 ## Documents
 
