@@ -30,11 +30,33 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [CodeAnalyzerPlugin](CodeAnalyzerPlugin.md).analyze | `analyze(source)` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [AnalysisEngine](AnalysisEngine.md).analyze | `plugin.analyze(source, result)` |
+| [AnalysisEngine](AnalysisEngine.md).analyze | `plugin.supports(source)` |
+| [CodeAnalyzerPlugin](CodeAnalyzerPlugin.md).analyze | `analyze(source)` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| analyze |  | analyze | `analyze(source)` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| analyze |  | CodeAnalyzerPlugin | analyze | `analyze(source)` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 

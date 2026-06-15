@@ -69,9 +69,12 @@ class AnalysisEngineTest {
                         currentResult.endpoints(),
                         configs,
                         currentResult.relations(),
+                        currentResult.variableTypes(),
                         currentResult.methodCalls(),
+                        currentResult.methodCallRelations(),
                         currentResult.sqlStatements(),
-                        currentResult.tableUsages());
+                        currentResult.tableUsages(),
+                        currentResult.mapperStatementRelations());
             }
         };
     }

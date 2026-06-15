@@ -1,11 +1,11 @@
-# ApiEndpointDoc
+# VariableTypeDoc
 
 ## Summary
 
 * Package: `io.github.codeatlas.core.model`
 * Declaration: `TYPE`
 * Type: `UNKNOWN`
-* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/ApiEndpointDoc.java`
+* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/VariableTypeDoc.java`
 
 ## Role
 
@@ -39,12 +39,11 @@ None
 
 | Source | Expression |
 | --- | --- |
-| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `endpoint.className()` |
-| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `endpoint.className()` |
-| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `endpoint.httpMethod()` |
-| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `endpoint.methodName()` |
-| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `endpoint.methodName()` |
-| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `endpoint.path()` |
+| [JavaAnalyzer](JavaAnalyzer.md).resolveTargetClassName | `variable.className()` |
+| [JavaAnalyzer](JavaAnalyzer.md).resolveTargetClassName | `variable.methodName()` |
+| [JavaAnalyzer](JavaAnalyzer.md).resolveTargetClassName | `variable.typeName()` |
+| [JavaAnalyzer](JavaAnalyzer.md).resolveTargetClassName | `variable.variableName()` |
+| [JavaAnalyzer](JavaAnalyzer.md).resolveTargetClassName | `variable.variableScope()` |
 
 ## Method Calls
 
@@ -70,6 +69,6 @@ Library / Utility calls are omitted from this page. Count: 0.
 
 | Source | Relation | Member |
 | --- | --- | --- |
-| [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_RETURN_TYPE | endpoint |
-| [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_RETURN_TYPE | extractEndpoints |
-| [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_RETURN_TYPE | toEndpoints |
+| [JavaAnalyzer](JavaAnalyzer.md) | METHOD_PARAMETER | variableTypes |
+| [JavaAnalyzer](JavaAnalyzer.md) | METHOD_RETURN_TYPE | analyzeVariableTypes |
+| [JavaAnalyzer](JavaAnalyzer.md) | METHOD_RETURN_TYPE | variableType |

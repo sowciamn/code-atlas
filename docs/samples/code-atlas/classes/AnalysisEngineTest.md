@@ -28,37 +28,36 @@ None
 | --- | --- | --- |
 | tempDir | `Path` | TempDir |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [AnalysisEngineTest](AnalysisEngineTest.md).plugin | `plugin("first", applied, "first.yml")` |
+| [AnalysisEngineTest](AnalysisEngineTest.md).plugin | `plugin("second", applied, "second.yml")` |
+| [AnalysisResult](AnalysisResult.md).configs | `result.configs()` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [AnalysisEngineTest](AnalysisEngineTest.md).appliesAllSupportedPluginsInRegistrationOrder | `plugin("first", applied, "first.yml")` |
+| [AnalysisEngineTest](AnalysisEngineTest.md).appliesAllSupportedPluginsInRegistrationOrder | `plugin("second", applied, "second.yml")` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| appliesAllSupportedPluginsInRegistrationOrder | List | of | `List.of()` |
-| appliesAllSupportedPluginsInRegistrationOrder | List | of | `List.of()` |
-| appliesAllSupportedPluginsInRegistrationOrder | List | of | `List.of()` |
-| appliesAllSupportedPluginsInRegistrationOrder | List | of | `List.of(first, second)` |
-| appliesAllSupportedPluginsInRegistrationOrder | Optional | empty | `Optional.empty()` |
-| appliesAllSupportedPluginsInRegistrationOrder | Optional | empty | `Optional.empty()` |
-| appliesAllSupportedPluginsInRegistrationOrder |  | assertThat | `assertThat(applied)` |
-| appliesAllSupportedPluginsInRegistrationOrder | assertThat(applied) | containsExactly | `assertThat(applied).containsExactly("first", "second")` |
-| appliesAllSupportedPluginsInRegistrationOrder |  | assertThat | `assertThat(result.configs())` |
-| appliesAllSupportedPluginsInRegistrationOrder | assertThat(result.configs()) | extracting | `assertThat(result.configs()).extracting(config -> config.fileName())` |
-| appliesAllSupportedPluginsInRegistrationOrder | assertThat(result.configs()).extracting(config -> config.fileName()) | containsExactly | `assertThat(result.configs()).extracting(config -> config.fileName()).containsExactly("first.yml", "second.yml")` |
-| appliesAllSupportedPluginsInRegistrationOrder | config | fileName | `config.fileName()` |
-| appliesAllSupportedPluginsInRegistrationOrder | new AnalysisEngine(List.of(first, second)) | analyze | `new AnalysisEngine(List.of(first, second)).analyze(source)` |
-| appliesAllSupportedPluginsInRegistrationOrder |  | plugin | `plugin("first", applied, "first.yml")` |
-| appliesAllSupportedPluginsInRegistrationOrder |  | plugin | `plugin("second", applied, "second.yml")` |
-| appliesAllSupportedPluginsInRegistrationOrder | result | configs | `result.configs()` |
-| plugin | Path | of | `Path.of(configName)` |
-| plugin | applied | add | `applied.add(id)` |
-| plugin | configs | add | `configs.add(new ConfigDoc(Path.of(configName), configName))` |
-| plugin | currentResult | classes | `currentResult.classes()` |
-| plugin | currentResult | configs | `currentResult.configs()` |
-| plugin | currentResult | endpoints | `currentResult.endpoints()` |
-| plugin | currentResult | methodCalls | `currentResult.methodCalls()` |
-| plugin | currentResult | overview | `currentResult.overview()` |
-| plugin | currentResult | relations | `currentResult.relations()` |
-| plugin | currentResult | sqlStatements | `currentResult.sqlStatements()` |
-| plugin | currentResult | tableUsages | `currentResult.tableUsages()` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| appliesAllSupportedPluginsInRegistrationOrder |  | AnalysisEngineTest | plugin | `plugin("first", applied, "first.yml")` |
+| appliesAllSupportedPluginsInRegistrationOrder |  | AnalysisEngineTest | plugin | `plugin("second", applied, "second.yml")` |
+| appliesAllSupportedPluginsInRegistrationOrder | result | AnalysisResult | configs | `result.configs()` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 27.
 
 ## Related Classes
 

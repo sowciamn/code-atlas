@@ -27,11 +27,38 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [MarkdownRenderer](MarkdownRenderer.md).mybatis | `first.ownerName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).mybatis | `first.sourcePath()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `statement.ownerName()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `statement.sourcePath()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `statement.statementId()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `statement.statementId()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `statement.statementType()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `statement.tableNames()` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| - | - | - | - |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 
@@ -47,5 +74,6 @@ None
 | --- | --- | --- |
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | statements |
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_RETURN_TYPE | matchingMyBatisStatements |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_PARAMETER | statements |
 | [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_RETURN_TYPE | parseStatements |
 | [MyBatisMapperXmlParser](MyBatisMapperXmlParser.md) | METHOD_RETURN_TYPE | statements |

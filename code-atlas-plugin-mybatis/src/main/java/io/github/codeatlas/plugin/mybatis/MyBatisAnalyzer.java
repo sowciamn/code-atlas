@@ -2,6 +2,7 @@ package io.github.codeatlas.plugin.mybatis;
 
 import io.github.codeatlas.core.model.AnalysisResult;
 import io.github.codeatlas.core.model.ClassDoc;
+import io.github.codeatlas.core.model.MapperStatementRelationDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.ProjectSource;
 import io.github.codeatlas.core.model.SqlStatementDoc;
@@ -62,7 +63,17 @@ public final class MyBatisAnalyzer implements CodeAnalyzerPlugin {
                 source.rootDirectory(),
                 0, 0, 0, 0, 0, 0);
         AnalysisResult empty = new AnalysisResult(
-                overview, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+                overview,
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of());
         return analyze(source, empty);
     }
 
@@ -91,15 +102,52 @@ public final class MyBatisAnalyzer implements CodeAnalyzerPlugin {
         List<ClassDoc> classes = currentResult.classes().stream()
                 .map(this::applyMapperRole)
                 .toList();
+        List<MapperStatementRelationDoc> mapperStatementRelations =
+                mapperStatementRelations(classes, statements);
         return new AnalysisResult(
                 currentResult.overview(),
                 classes,
                 currentResult.endpoints(),
                 currentResult.configs(),
                 currentResult.relations(),
+                currentResult.variableTypes(),
                 currentResult.methodCalls(),
+                currentResult.methodCallRelations(),
                 statements,
-                tableUsages);
+                tableUsages,
+                mapperStatementRelations);
+    }
+
+    private List<MapperStatementRelationDoc> mapperStatementRelations(
+            List<ClassDoc> classes,
+            List<SqlStatementDoc> statements
+    ) {
+        List<MapperStatementRelationDoc> relations = new ArrayList<>();
+        for (ClassDoc classDoc : classes) {
+            String qualifiedName = classDoc.packageName().isEmpty()
+                    ? classDoc.className()
+                    : classDoc.packageName() + "." + classDoc.className();
+            for (SqlStatementDoc statement : statements) {
+                if (!statement.ownerName().equals(qualifiedName)) {
+                    continue;
+                }
+                classDoc.methods().stream()
+                        .filter(method -> method.methodName().equals(statement.statementId()))
+                        .map(method -> new MapperStatementRelationDoc(
+                                classDoc.className(),
+                                method.methodName(),
+                                statement.statementId(),
+                                statement.statementType(),
+                                statement.tableNames(),
+                                statement.sourcePath()))
+                        .forEach(relations::add);
+            }
+        }
+        return relations.stream()
+                .sorted(Comparator.comparing(MapperStatementRelationDoc::mapperClassName)
+                        .thenComparing(MapperStatementRelationDoc::mapperMethodName)
+                        .thenComparing(MapperStatementRelationDoc::statementId))
+                .toList();
     }
 
     /**

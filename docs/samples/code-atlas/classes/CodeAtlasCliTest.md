@@ -31,43 +31,49 @@ None
 | --- | --- | --- |
 | tempDir | `Path` | TempDir |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).assertGeneratedClasses | `assertGeneratedClasses(output)` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).createSourceTree | `createSourceTree()` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).assertGeneratedClasses | `assertGeneratedClasses(output)` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).createSourceTree | `createSourceTree()` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).write | `write(source, "examples/Demo.java", "class Demo {}")` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).write | `write(source, "fixtures/Fixture.java", "class Fixture {}")` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).write | `write(source, "src/main/java/example/App.java", "package example; class App {}")` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).acceptsCommaSeparatedExcludeOptions | `assertGeneratedClasses(output)` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).acceptsCommaSeparatedExcludeOptions | `createSourceTree()` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).acceptsRepeatedExcludeOptions | `assertGeneratedClasses(output)` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).acceptsRepeatedExcludeOptions | `createSourceTree()` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).createSourceTree | `write(source, "examples/Demo.java", "class Demo {}")` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).createSourceTree | `write(source, "fixtures/Fixture.java", "class Fixture {}")` |
+| [CodeAtlasCliTest](CodeAtlasCliTest.md).createSourceTree | `write(source, "src/main/java/example/App.java", "package example; class App {}")` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| acceptsCommaSeparatedExcludeOptions |  | assertGeneratedClasses | `assertGeneratedClasses(output)` |
-| acceptsCommaSeparatedExcludeOptions |  | assertThat | `assertThat(exitCode)` |
-| acceptsCommaSeparatedExcludeOptions | assertThat(exitCode) | isZero | `assertThat(exitCode).isZero()` |
-| acceptsCommaSeparatedExcludeOptions |  | createSourceTree | `createSourceTree()` |
-| acceptsCommaSeparatedExcludeOptions | new CommandLine(new CodeAtlasCli()) | execute | `new CommandLine(new CodeAtlasCli()).execute("generate", "--source", source.toString(), "--output", output.toString(), "--exclude", "examples,fixtures")` |
-| acceptsCommaSeparatedExcludeOptions | output | toString | `output.toString()` |
-| acceptsCommaSeparatedExcludeOptions | source | toString | `source.toString()` |
-| acceptsCommaSeparatedExcludeOptions | tempDir | resolve | `tempDir.resolve("output-comma")` |
-| acceptsRepeatedExcludeOptions |  | assertGeneratedClasses | `assertGeneratedClasses(output)` |
-| acceptsRepeatedExcludeOptions |  | assertThat | `assertThat(exitCode)` |
-| acceptsRepeatedExcludeOptions | assertThat(exitCode) | isZero | `assertThat(exitCode).isZero()` |
-| acceptsRepeatedExcludeOptions |  | createSourceTree | `createSourceTree()` |
-| acceptsRepeatedExcludeOptions | new CommandLine(new CodeAtlasCli()) | execute | `new CommandLine(new CodeAtlasCli()).execute("generate", "--source", source.toString(), "--output", output.toString(), "--exclude", "examples", "--exclude", "fixtures")` |
-| acceptsRepeatedExcludeOptions | output | toString | `output.toString()` |
-| acceptsRepeatedExcludeOptions | source | toString | `source.toString()` |
-| acceptsRepeatedExcludeOptions | tempDir | resolve | `tempDir.resolve("output-repeated")` |
-| assertGeneratedClasses |  | assertThat | `assertThat(output.resolve("classes/App.md"))` |
-| assertGeneratedClasses | assertThat(output.resolve("classes/App.md")) | exists | `assertThat(output.resolve("classes/App.md")).exists()` |
-| assertGeneratedClasses |  | assertThat | `assertThat(output.resolve("classes/Demo.md"))` |
-| assertGeneratedClasses | assertThat(output.resolve("classes/Demo.md")) | doesNotExist | `assertThat(output.resolve("classes/Demo.md")).doesNotExist()` |
-| assertGeneratedClasses |  | assertThat | `assertThat(output.resolve("classes/Fixture.md"))` |
-| assertGeneratedClasses | assertThat(output.resolve("classes/Fixture.md")) | doesNotExist | `assertThat(output.resolve("classes/Fixture.md")).doesNotExist()` |
-| assertGeneratedClasses | output | resolve | `output.resolve("classes/App.md")` |
-| assertGeneratedClasses | output | resolve | `output.resolve("classes/Demo.md")` |
-| assertGeneratedClasses | output | resolve | `output.resolve("classes/Fixture.md")` |
-| createSourceTree | tempDir | resolve | `tempDir.resolve("source")` |
-| createSourceTree |  | write | `write(source, "examples/Demo.java", "class Demo {}")` |
-| createSourceTree |  | write | `write(source, "fixtures/Fixture.java", "class Fixture {}")` |
-| createSourceTree |  | write | `write(source, "src/main/java/example/App.java", "package example; class App {}")` |
-| write | Files | createDirectories | `Files.createDirectories(file.getParent())` |
-| write | Files | writeString | `Files.writeString(file, content)` |
-| write | file | getParent | `file.getParent()` |
-| write | source | resolve | `source.resolve(relativePath)` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| acceptsCommaSeparatedExcludeOptions |  | CodeAtlasCliTest | assertGeneratedClasses | `assertGeneratedClasses(output)` |
+| acceptsCommaSeparatedExcludeOptions |  | CodeAtlasCliTest | createSourceTree | `createSourceTree()` |
+| acceptsRepeatedExcludeOptions |  | CodeAtlasCliTest | assertGeneratedClasses | `assertGeneratedClasses(output)` |
+| acceptsRepeatedExcludeOptions |  | CodeAtlasCliTest | createSourceTree | `createSourceTree()` |
+| createSourceTree |  | CodeAtlasCliTest | write | `write(source, "examples/Demo.java", "class Demo {}")` |
+| createSourceTree |  | CodeAtlasCliTest | write | `write(source, "fixtures/Fixture.java", "class Fixture {}")` |
+| createSourceTree |  | CodeAtlasCliTest | write | `write(source, "src/main/java/example/App.java", "package example; class App {}")` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 26.
 
 ## Related Classes
 

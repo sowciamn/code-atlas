@@ -27,11 +27,31 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| - | - |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| main | SpringApplication | run | `SpringApplication.run(DemoApplication.class, args)` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 1.
 
 ## Related Classes
 

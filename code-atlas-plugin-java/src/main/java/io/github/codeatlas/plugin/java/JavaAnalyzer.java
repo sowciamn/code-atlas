@@ -11,8 +11,12 @@ import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import io.github.codeatlas.core.model.AnalysisResult;
@@ -21,12 +25,16 @@ import io.github.codeatlas.core.model.ClassRelationDoc;
 import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
 import io.github.codeatlas.core.model.FieldDoc;
-import io.github.codeatlas.core.model.MethodDoc;
+import io.github.codeatlas.core.model.MethodCallCategory;
 import io.github.codeatlas.core.model.MethodCallDoc;
+import io.github.codeatlas.core.model.MethodCallRelationDoc;
+import io.github.codeatlas.core.model.MethodDoc;
 import io.github.codeatlas.core.model.ParameterDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.ProjectSource;
 import io.github.codeatlas.core.model.RelationType;
+import io.github.codeatlas.core.model.VariableScope;
+import io.github.codeatlas.core.model.VariableTypeDoc;
 import io.github.codeatlas.core.spi.CodeAnalyzerPlugin;
 
 import java.io.IOException;
@@ -46,6 +54,34 @@ import java.util.Set;
  * 解析結果へ変換する。</p>
  */
 public final class JavaAnalyzer implements CodeAnalyzerPlugin {
+    private static final Set<String> LIBRARY_OR_UTILITY_METHODS = Set.of(
+            "stream",
+            "map",
+            "filter",
+            "flatMap",
+            "forEach",
+            "toList",
+            "collect",
+            "sorted",
+            "thenComparing",
+            "comparing",
+            "size",
+            "isEmpty",
+            "toString",
+            "of",
+            "copyOf",
+            "printf",
+            "println",
+            "append",
+            "formatted",
+            "replace",
+            "replaceAll",
+            "trim",
+            "startsWith",
+            "endsWith",
+            "contains",
+            "equals",
+            "matches");
     private final JavaParser parser = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
@@ -81,7 +117,18 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
     public AnalysisResult analyze(ProjectSource source) {
         List<ClassDoc> classes = analyzeClasses(source);
         List<ClassRelationDoc> relations = analyzeRelations(source, classes);
-        List<MethodCallDoc> methodCalls = analyzeMethodCalls(source);
+        List<VariableTypeDoc> variableTypes = analyzeVariableTypes(source);
+        List<MethodCallDoc> methodCalls = analyzeMethodCalls(source, classes, variableTypes);
+        List<MethodCallRelationDoc> methodCallRelations = methodCalls.stream()
+                .filter(call -> call.category() == MethodCallCategory.PROJECT)
+                .map(call -> new MethodCallRelationDoc(
+                        call.sourceClassName(),
+                        call.sourceMethodName(),
+                        call.resolvedTargetClassName(),
+                        call.calledMethodName(),
+                        call.expression(),
+                        call.sourcePath()))
+                .toList();
         List<ConfigDoc> configs = source.configFiles().stream()
                 .map(path -> new ConfigDoc(source.relativePath(path), path.getFileName().toString()))
                 .toList();
@@ -95,34 +142,122 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
                 0,
                 0);
         return new AnalysisResult(
-                overview, classes, List.of(), configs, relations, methodCalls, List.of(), List.of());
+                overview,
+                classes,
+                List.of(),
+                configs,
+                relations,
+                variableTypes,
+                methodCalls,
+                methodCallRelations,
+                List.of(),
+                List.of(),
+                List.of());
     }
 
     /**
      * 各Javaメソッド内のメソッド呼び出し式を構文木から抽出する。
      *
-     * <p>型解決や呼び出し先クラスの特定は行わない。解析できないファイルは理由を
-     * 標準エラーへ出力し、残りのファイルの解析を継続する。</p>
+     * <p>同一クラス内の変数宣言とメソッド宣言を使った簡易解決だけを行う。
+     * 解析できないファイルは理由を標準エラーへ出力し、残りのファイルの解析を継続する。</p>
      *
      * @param source 収集済みのプロジェクトソース情報
      * @return 呼び出し元と式で安定した順序に並べたメソッド呼び出し
      */
     public List<MethodCallDoc> analyzeMethodCalls(ProjectSource source) {
-        List<MethodCallDoc> methodCalls = new ArrayList<>();
+        List<ClassDoc> classes = analyzeClasses(source);
+        return analyzeMethodCalls(source, classes, analyzeVariableTypes(source));
+    }
+
+    /**
+     * Javaソースに明示されたフィールド、引数、ローカル変数の型を抽出する。
+     *
+     * @param source 収集済みのプロジェクトソース情報
+     * @return クラス、メソッド、変数名で安定した順序に並べた変数型情報
+     */
+    public List<VariableTypeDoc> analyzeVariableTypes(ProjectSource source) {
+        List<VariableTypeDoc> variableTypes = new ArrayList<>();
         for (Path javaFile : source.javaFiles()) {
             try {
                 CompilationUnit unit = parse(javaFile);
                 Path sourcePath = source.relativePath(javaFile);
                 for (TypeDeclaration<?> type : unit.getTypes()) {
+                    String className = type.getNameAsString();
+                    type.getFields().stream()
+                            .flatMap(field -> field.getVariables().stream())
+                            .map(variable -> variableType(
+                                    className, "", variable, VariableScope.FIELD, sourcePath))
+                            .forEach(variableTypes::add);
+                    type.getConstructors().stream()
+                            .flatMap(constructor -> constructor.getParameters().stream())
+                            .map(parameter -> new VariableTypeDoc(
+                                    className,
+                                    "<constructor>",
+                                    parameter.getNameAsString(),
+                                    parameter.getTypeAsString(),
+                                    VariableScope.CONSTRUCTOR_PARAMETER,
+                                    sourcePath))
+                            .forEach(variableTypes::add);
+                    for (MethodDeclaration method : type.getMethods()) {
+                        method.getParameters().stream()
+                                .map(parameter -> new VariableTypeDoc(
+                                        className,
+                                        method.getNameAsString(),
+                                        parameter.getNameAsString(),
+                                        parameter.getTypeAsString(),
+                                        VariableScope.METHOD_PARAMETER,
+                                        sourcePath))
+                                .forEach(variableTypes::add);
+                        method.findAll(VariableDeclarator.class).stream()
+                                .map(variable -> variableType(
+                                        className,
+                                        method.getNameAsString(),
+                                        variable,
+                                        VariableScope.LOCAL_VARIABLE,
+                                        sourcePath))
+                                .forEach(variableTypes::add);
+                    }
+                }
+            } catch (RuntimeException | IOException exception) {
+                System.err.printf("Failed to analyze variable types in %s: %s%n",
+                        javaFile, exception.getMessage());
+            }
+        }
+        return variableTypes.stream()
+                .sorted(Comparator.comparing(VariableTypeDoc::className)
+                        .thenComparing(VariableTypeDoc::methodName)
+                        .thenComparing(variable -> variable.variableScope().name())
+                        .thenComparing(VariableTypeDoc::variableName))
+                .toList();
+    }
+
+    private List<MethodCallDoc> analyzeMethodCalls(
+            ProjectSource source,
+            List<ClassDoc> classes,
+            List<VariableTypeDoc> variableTypes
+    ) {
+        List<MethodCallDoc> methodCalls = new ArrayList<>();
+        Set<String> projectClassNames = new HashSet<>();
+        classes.forEach(classDoc -> projectClassNames.add(classDoc.className()));
+        for (Path javaFile : source.javaFiles()) {
+            try {
+                CompilationUnit unit = parse(javaFile);
+                Path sourcePath = source.relativePath(javaFile);
+                for (TypeDeclaration<?> type : unit.getTypes()) {
+                    String className = type.getNameAsString();
+                    Set<String> ownMethodNames = type.getMethods().stream()
+                            .map(MethodDeclaration::getNameAsString)
+                            .collect(java.util.stream.Collectors.toSet());
                     for (MethodDeclaration method : type.getMethods()) {
                         method.findAll(MethodCallExpr.class).stream()
-                                .map(call -> new MethodCallDoc(
-                                        type.getNameAsString(),
+                                .map(call -> toMethodCallDoc(
+                                        className,
                                         method.getNameAsString(),
-                                        call.getScope().map(Object::toString).orElse(""),
-                                        call.getNameAsString(),
-                                        call.toString(),
-                                        sourcePath))
+                                        call,
+                                        sourcePath,
+                                        variableTypes,
+                                        projectClassNames,
+                                        ownMethodNames))
                                 .forEach(methodCalls::add);
                     }
                 }
@@ -137,6 +272,137 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
                         .thenComparing(call -> call.sourcePath().toString())
                         .thenComparing(MethodCallDoc::expression))
                 .toList();
+    }
+
+    private MethodCallDoc toMethodCallDoc(
+            String className,
+            String methodName,
+            MethodCallExpr call,
+            Path sourcePath,
+            List<VariableTypeDoc> variableTypes,
+            Set<String> projectClassNames,
+            Set<String> ownMethodNames
+    ) {
+        String scopeName = call.getScope().map(Object::toString).orElse("");
+        String lookupName = call.getScope().flatMap(this::scopeVariableName).orElse("");
+        String targetClassName = resolveTargetClassName(
+                className,
+                methodName,
+                lookupName,
+                call.getScope().isEmpty(),
+                call.getNameAsString(),
+                variableTypes,
+                projectClassNames,
+                ownMethodNames);
+        MethodCallCategory category = LIBRARY_OR_UTILITY_METHODS.contains(call.getNameAsString())
+                ? MethodCallCategory.LIBRARY_OR_UTILITY
+                : targetClassName.isEmpty()
+                        ? MethodCallCategory.LIBRARY_OR_UTILITY
+                        : MethodCallCategory.PROJECT;
+        return new MethodCallDoc(
+                className,
+                methodName,
+                scopeName,
+                targetClassName,
+                call.getNameAsString(),
+                call.toString(),
+                category,
+                sourcePath);
+    }
+
+    private String resolveTargetClassName(
+            String className,
+            String methodName,
+            String scopeName,
+            boolean unscoped,
+            String calledMethodName,
+            List<VariableTypeDoc> variableTypes,
+            Set<String> projectClassNames,
+            Set<String> ownMethodNames
+    ) {
+        if (unscoped && ownMethodNames.contains(calledMethodName)) {
+            return className;
+        }
+        if ("this".equals(scopeName) && ownMethodNames.contains(calledMethodName)) {
+            return className;
+        }
+        if (scopeName.isEmpty()) {
+            return "";
+        }
+        for (VariableScope scope : List.of(
+                VariableScope.LOCAL_VARIABLE,
+                VariableScope.METHOD_PARAMETER,
+                VariableScope.FIELD,
+                VariableScope.CONSTRUCTOR_PARAMETER)) {
+            for (VariableTypeDoc variable : variableTypes) {
+                if (!variable.className().equals(className)
+                        || !variable.variableName().equals(scopeName)
+                        || variable.variableScope() != scope
+                        || isMethodVariable(scope) && !variable.methodName().equals(methodName)) {
+                    continue;
+                }
+                if (scope == VariableScope.CONSTRUCTOR_PARAMETER
+                        && variableTypes.stream().noneMatch(field ->
+                                field.className().equals(className)
+                                        && field.variableName().equals(scopeName)
+                                        && field.variableScope() == VariableScope.FIELD)) {
+                    continue;
+                }
+                String projectType = projectTypeName(variable.typeName(), projectClassNames);
+                if (!projectType.isEmpty()) {
+                    return projectType;
+                }
+            }
+        }
+        return "";
+    }
+
+    private boolean isMethodVariable(VariableScope scope) {
+        return scope == VariableScope.LOCAL_VARIABLE || scope == VariableScope.METHOD_PARAMETER;
+    }
+
+    private java.util.Optional<String> scopeVariableName(Expression scope) {
+        if (scope.isThisExpr()) {
+            return java.util.Optional.of("this");
+        }
+        if (scope instanceof NameExpr nameExpr) {
+            return java.util.Optional.of(nameExpr.getNameAsString());
+        }
+        if (scope instanceof FieldAccessExpr fieldAccess
+                && fieldAccess.getScope().isThisExpr()) {
+            return java.util.Optional.of(fieldAccess.getNameAsString());
+        }
+        return java.util.Optional.empty();
+    }
+
+    private String projectTypeName(String typeName, Set<String> projectClassNames) {
+        String rawType = typeName.trim();
+        int genericStart = rawType.indexOf('<');
+        if (genericStart >= 0) {
+            rawType = rawType.substring(0, genericStart);
+        }
+        rawType = rawType.replace("[]", "").replace("...", "").trim();
+        int packageSeparator = rawType.lastIndexOf('.');
+        if (packageSeparator >= 0) {
+            rawType = rawType.substring(packageSeparator + 1);
+        }
+        return projectClassNames.contains(rawType) ? rawType : "";
+    }
+
+    private VariableTypeDoc variableType(
+            String className,
+            String methodName,
+            VariableDeclarator variable,
+            VariableScope scope,
+            Path sourcePath
+    ) {
+        return new VariableTypeDoc(
+                className,
+                methodName,
+                variable.getNameAsString(),
+                variable.getTypeAsString(),
+                scope,
+                sourcePath);
     }
 
     /**

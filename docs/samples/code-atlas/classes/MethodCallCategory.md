@@ -1,19 +1,19 @@
-# UserRepository
+# MethodCallCategory
 
 ## Summary
 
-* Package: `com.example.demo.repository`
-* Declaration: `INTERFACE`
-* Type: `REPOSITORY`
-* Source: `src/main/java/com/example/demo/repository/UserRepository.java`
+* Package: `io.github.codeatlas.core.model`
+* Declaration: `ENUM`
+* Type: `UNKNOWN`
+* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/MethodCallCategory.java`
 
 ## Role
 
-このクラスは `@Repository` が付与されているため、データアクセスコンポーネントです。
+コードから機械的に判定できる役割情報はありません。
 
 ## Annotations
 
-* `Repository`
+None
 
 ## Methods
 

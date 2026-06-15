@@ -1,19 +1,19 @@
-# UserRepository
+# MapperStatementRelationDoc
 
 ## Summary
 
-* Package: `com.example.demo.repository`
-* Declaration: `INTERFACE`
-* Type: `REPOSITORY`
-* Source: `src/main/java/com/example/demo/repository/UserRepository.java`
+* Package: `io.github.codeatlas.core.model`
+* Declaration: `TYPE`
+* Type: `UNKNOWN`
+* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/MapperStatementRelationDoc.java`
 
 ## Role
 
-このクラスは `@Repository` が付与されているため、データアクセスコンポーネントです。
+コードから機械的に判定できる役割情報はありません。
 
 ## Annotations
 
-* `Repository`
+None
 
 ## Methods
 
@@ -65,4 +65,5 @@ Library / Utility calls are omitted from this page. Count: 0.
 
 | Source | Relation | Member |
 | --- | --- | --- |
-| - | - | - |
+| [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | relations |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_RETURN_TYPE | mapperStatementRelations |

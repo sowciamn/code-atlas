@@ -27,11 +27,31 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [MarkdownRenderer](MarkdownRenderer.md).title | `type.name()` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| - | - | - | - |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 
@@ -47,6 +67,7 @@ None
 | --- | --- | --- |
 | [ClassDoc](ClassDoc.md) | METHOD_PARAMETER | type |
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | type |
+| [MarkdownRenderer](MarkdownRenderer.md) | METHOD_RETURN_TYPE | componentType |
 | [SpringBootAnalyzer](SpringBootAnalyzer.md) | FIELD | COMPONENT_ANNOTATIONS |
 | [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_PARAMETER | type |
 | [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_RETURN_TYPE | componentType |

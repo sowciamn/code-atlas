@@ -29,11 +29,33 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [UserController](UserController.md).create | `userService.create(request)` |
+| [UserController](UserController.md).findAll | `userService.findAll()` |
+| [UserController](UserController.md).findById | `userService.findById(id)` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| findAll | List | of | `List.of()` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 1.
 
 ## Related Classes
 

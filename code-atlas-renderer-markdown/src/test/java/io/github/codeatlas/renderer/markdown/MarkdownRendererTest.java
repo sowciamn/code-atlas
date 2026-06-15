@@ -6,7 +6,11 @@ import io.github.codeatlas.core.model.ClassDoc;
 import io.github.codeatlas.core.model.ClassRelationDoc;
 import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
+import io.github.codeatlas.core.model.MapperStatementRelationDoc;
+import io.github.codeatlas.core.model.MethodCallCategory;
 import io.github.codeatlas.core.model.MethodCallDoc;
+import io.github.codeatlas.core.model.MethodCallRelationDoc;
+import io.github.codeatlas.core.model.MethodDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.RelationType;
 import io.github.codeatlas.core.model.SqlStatementDoc;
@@ -35,7 +39,7 @@ class MarkdownRendererTest {
                 Path.of("src/main/java/example/UserController.java"),
                 ComponentType.CONTROLLER,
                 List.of("RestController"),
-                List.of(),
+                List.of(new MethodDoc("findAll", "List<User>", List.of(), List.of())),
                 List.of(),
                 "このクラスは `@RestController` が付与されているため、Web API Controllerです。");
         ClassDoc service = new ClassDoc(
@@ -45,7 +49,7 @@ class MarkdownRendererTest {
                 Path.of("src/main/java/example/UserService.java"),
                 ComponentType.SERVICE,
                 List.of("Service"),
-                List.of(),
+                List.of(new MethodDoc("findAll", "List<User>", List.of(), List.of())),
                 List.of(),
                 "このクラスは `@Service` が付与されているため、業務ロジックコンポーネントです。");
         ClassDoc mapper = new ClassDoc(
@@ -55,7 +59,7 @@ class MarkdownRendererTest {
                 Path.of("src/main/java/example/UserMapper.java"),
                 ComponentType.UNKNOWN,
                 List.of("Mapper"),
-                List.of(),
+                List.of(new MethodDoc("findAll", "List<User>", List.of(), List.of())),
                 List.of(),
                 "このインターフェースは `@Mapper` が付与されているため、MyBatis Mapper interfaceです。");
         SqlStatementDoc statement = new SqlStatementDoc(
@@ -88,19 +92,63 @@ class MarkdownRendererTest {
                                 "ExternalClient",
                                 RelationType.FIELD,
                                 "externalClient")),
-                List.of(new MethodCallDoc(
-                        "UserController",
-                        "findAll",
-                        "userService",
-                        "findAll",
-                        "userService.findAll()",
-                        Path.of("src/main/java/example/UserController.java"))),
+                List.of(),
+                List.of(
+                        new MethodCallDoc(
+                                "UserController",
+                                "findAll",
+                                "userService",
+                                "UserService",
+                                "findAll",
+                                "userService.findAll()",
+                                MethodCallCategory.PROJECT,
+                                Path.of("src/main/java/example/UserController.java")),
+                        new MethodCallDoc(
+                                "UserService",
+                                "findAll",
+                                "userMapper",
+                                "UserMapper",
+                                "findAll",
+                                "userMapper.findAll()",
+                                MethodCallCategory.PROJECT,
+                                Path.of("src/main/java/example/UserService.java")),
+                        new MethodCallDoc(
+                                "UserService",
+                                "findAll",
+                                "users",
+                                "",
+                                "stream",
+                                "users.stream()",
+                                MethodCallCategory.LIBRARY_OR_UTILITY,
+                                Path.of("src/main/java/example/UserService.java"))),
+                List.of(
+                        new MethodCallRelationDoc(
+                                "UserController",
+                                "findAll",
+                                "UserService",
+                                "findAll",
+                                "userService.findAll()",
+                                Path.of("src/main/java/example/UserController.java")),
+                        new MethodCallRelationDoc(
+                                "UserService",
+                                "findAll",
+                                "UserMapper",
+                                "findAll",
+                                "userMapper.findAll()",
+                                Path.of("src/main/java/example/UserService.java"))),
                 List.of(statement),
                 List.of(new TableUsageDoc(
                         "users",
                         "example.UserMapper",
                         "SELECT",
                         "findAll",
+                        Path.of("src/main/resources/mapper/UserMapper.xml"))),
+                List.of(new MapperStatementRelationDoc(
+                        "UserMapper",
+                        "findAll",
+                        "findAll",
+                        SqlStatementType.SELECT,
+                        List.of("users"),
                         Path.of("src/main/resources/mapper/UserMapper.xml"))));
 
         new MarkdownRenderer().render(result, tempDir);
@@ -112,6 +160,9 @@ class MarkdownRendererTest {
         assertThat(tempDir.resolve("architecture.md")).content()
                 .contains("UserController")
                 .contains("## Dependency Overview")
+                .contains("## Method Call Overview")
+                .contains("[UserController](classes/UserController.md).findAll")
+                .contains("[UserService](classes/UserService.md).findAll")
                 .contains("| [UserController](classes/UserController.md) "
                         + "| [UserService](classes/UserService.md) | FIELD | userService |")
                 .contains("| [UserController](classes/UserController.md) "
@@ -119,17 +170,25 @@ class MarkdownRendererTest {
                 .doesNotContain("[ExternalClient]");
         assertThat(tempDir.resolve("classes/UserController.md")).content()
                 .contains("## Role")
+                .contains("## Method Call Relations")
+                .contains("### Outgoing Calls")
+                .contains("[UserService](UserService.md).findAll")
                 .contains("## Method Calls")
-                .contains("| findAll | userService | findAll | `userService.findAll()` |")
+                .contains("| findAll | userService | UserService | findAll "
+                        + "| `userService.findAll()` |")
                 .contains("## Related Classes")
                 .contains("### Outgoing References")
                 .contains("| [UserService](UserService.md) | FIELD | userService |");
         assertThat(tempDir.resolve("classes/UserService.md")).content()
+                .contains("### Incoming Calls")
+                .contains("[UserController](UserController.md).findAll")
                 .contains("### Incoming References")
                 .contains("| [UserController](UserController.md) | FIELD | userService |");
         assertThat(tempDir.resolve("classes/UserMapper.md")).content()
                 .contains("## MyBatis Statements")
                 .contains("| SELECT | findAll | users |")
+                .contains("## Mapper Statement Relations")
+                .contains("| findAll | findAll | SELECT | users |")
                 .contains("## Related Tables")
                 .contains("| users | findAll | SELECT |");
         assertThat(tempDir.resolve("sql.md")).content()
@@ -140,13 +199,49 @@ class MarkdownRendererTest {
         assertThat(tempDir.resolve("mybatis.md")).content()
                 .contains("| example.UserMapper |", "| 1 |");
         assertThat(tempDir.resolve("configs/application.md")).content().contains("application.yml");
+        assertThat(tempDir.resolve("impact-map.md")).content()
+                .contains("| GET /api/users | UserController.findAll | UserService.findAll "
+                        + "| UserMapper.findAll | findAll | users |");
         assertThat(tempDir.resolve("_config.yml")).content().contains("theme: minima");
         assertThat(Files.readString(tempDir.resolve("index.md")))
                 .contains("API Endpoints: 1")
                 .contains("* [SQL Statements](sql.md)")
+                .contains("* [Impact Map](impact-map.md)")
                 .contains("* [Tables](tables.md)")
                 .contains("* [MyBatis Mappers](mybatis.md)")
                 .contains("* Source: `/" + Path.of("").toAbsolutePath().getFileName()
                         + "/examples/sample`");
+    }
+
+    @Test
+    void writesDashesForUnresolvedImpactMapColumns() throws Exception {
+        ClassDoc controller = new ClassDoc(
+                "example",
+                "UserController",
+                "CLASS",
+                Path.of("UserController.java"),
+                ComponentType.CONTROLLER,
+                List.of("RestController"),
+                List.of(new MethodDoc("findAll", "void", List.of(), List.of())),
+                List.of(),
+                "Controller");
+        AnalysisResult result = new AnalysisResult(
+                new ProjectOverview("sample", tempDir, 1, 1, 1, 0, 0, 0),
+                List.of(controller),
+                List.of(new ApiEndpointDoc(
+                        "UserController", "findAll", "GET", "/api/users", "UserController.java")),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of());
+
+        new MarkdownRenderer().render(result, tempDir);
+
+        assertThat(tempDir.resolve("impact-map.md")).content()
+                .contains("| GET /api/users | UserController.findAll | - | - | - | - |");
     }
 }

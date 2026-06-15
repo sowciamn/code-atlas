@@ -1,11 +1,11 @@
-# ClassRelationDoc
+# MethodCallRelationDoc
 
 ## Summary
 
 * Package: `io.github.codeatlas.core.model`
 * Declaration: `TYPE`
 * Type: `UNKNOWN`
-* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/ClassRelationDoc.java`
+* Source: `code-atlas-core/src/main/java/io/github/codeatlas/core/model/MethodCallRelationDoc.java`
 
 ## Role
 
@@ -39,7 +39,14 @@ None
 
 | Source | Expression |
 | --- | --- |
-| - | - |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `mapperCall.targetClassName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `mapperCall.targetClassName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `serviceCall.targetClassName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `serviceCall.targetClassName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `mapperCall.targetMethodName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `mapperCall.targetMethodName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `serviceCall.targetMethodName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `serviceCall.targetMethodName()` |
 
 ## Method Calls
 
@@ -65,8 +72,5 @@ Library / Utility calls are omitted from this page. Count: 0.
 
 | Source | Relation | Member |
 | --- | --- | --- |
-| [JavaAnalyzer](JavaAnalyzer.md) | METHOD_PARAMETER | relations |
-| [JavaAnalyzer](JavaAnalyzer.md) | METHOD_RETURN_TYPE | analyzeRelations |
-| [MarkdownRenderer](MarkdownRenderer.md) | FIELD | RELATION_ORDER |
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | relations |
-| [MarkdownRenderer](MarkdownRenderer.md) | METHOD_RETURN_TYPE | sortedRelations |
+| [MarkdownRenderer](MarkdownRenderer.md) | METHOD_RETURN_TYPE | sortedMethodCallRelations |

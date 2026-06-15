@@ -32,30 +32,45 @@ None
 | --- | --- | --- |
 | resolver | `RoleResolver` |  |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [RoleResolver](RoleResolver.md).resolve | `resolver.resolve(type)` |
+| [RoleResolverTest](RoleResolverTest.md).resolve | `resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolve | `resolve("@Command class CodeAtlasCli {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolve | `resolve("class MarkdownRenderer implements DocumentationRenderer {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolve | `resolve("class UserDTO {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolve | `resolve("class Utility {}")` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [RoleResolverTest](RoleResolverTest.md).resolvesAnalyzerPlugin | `resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolvesCliCommand | `resolve("@Command class CodeAtlasCli {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolvesDocumentationRenderer | `resolve("class MarkdownRenderer implements DocumentationRenderer {}")` |
+| [RoleResolverTest](RoleResolverTest.md).resolvesDtoByClassName | `resolve("class UserDTO {}")` |
+| [RoleResolverTest](RoleResolverTest.md).returnsDefaultMessageForUnknownRole | `resolve("class Utility {}")` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| resolve | new JavaParser() | parse | `new JavaParser().parse(source)` |
-| resolve | new JavaParser().parse(source) | getResult | `new JavaParser().parse(source).getResult()` |
-| resolve | new JavaParser().parse(source).getResult() | orElseThrow | `new JavaParser().parse(source).getResult().orElseThrow()` |
-| resolve | new JavaParser().parse(source).getResult().orElseThrow() | getType | `new JavaParser().parse(source).getResult().orElseThrow().getType(0)` |
-| resolve | resolver | resolve | `resolver.resolve(type)` |
-| resolvesAnalyzerPlugin |  | assertThat | `assertThat(resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}"))` |
-| resolvesAnalyzerPlugin | assertThat(resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}")) | contains | `assertThat(resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}")).contains("ソース解析プラグイン")` |
-| resolvesAnalyzerPlugin |  | resolve | `resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}")` |
-| resolvesCliCommand |  | assertThat | `assertThat(resolve("@Command class CodeAtlasCli {}"))` |
-| resolvesCliCommand | assertThat(resolve("@Command class CodeAtlasCli {}")) | contains | `assertThat(resolve("@Command class CodeAtlasCli {}")).contains("CLIコマンド")` |
-| resolvesCliCommand |  | resolve | `resolve("@Command class CodeAtlasCli {}")` |
-| resolvesDocumentationRenderer |  | assertThat | `assertThat(resolve("class MarkdownRenderer implements DocumentationRenderer {}"))` |
-| resolvesDocumentationRenderer | assertThat(resolve("class MarkdownRenderer implements DocumentationRenderer {}")) | contains | `assertThat(resolve("class MarkdownRenderer implements DocumentationRenderer {}")).contains("ドキュメント出力レンダラー")` |
-| resolvesDocumentationRenderer |  | resolve | `resolve("class MarkdownRenderer implements DocumentationRenderer {}")` |
-| resolvesDtoByClassName |  | assertThat | `assertThat(resolve("class UserDTO {}"))` |
-| resolvesDtoByClassName | assertThat(resolve("class UserDTO {}")) | contains | `assertThat(resolve("class UserDTO {}")).contains("DTOです")` |
-| resolvesDtoByClassName |  | resolve | `resolve("class UserDTO {}")` |
-| returnsDefaultMessageForUnknownRole |  | assertThat | `assertThat(resolve("class Utility {}"))` |
-| returnsDefaultMessageForUnknownRole | assertThat(resolve("class Utility {}")) | isEqualTo | `assertThat(resolve("class Utility {}")).isEqualTo(RoleResolver.UNKNOWN_ROLE)` |
-| returnsDefaultMessageForUnknownRole |  | resolve | `resolve("class Utility {}")` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| resolve | resolver | RoleResolver | resolve | `resolver.resolve(type)` |
+| resolvesAnalyzerPlugin |  | RoleResolverTest | resolve | `resolve("class JavaAnalyzer implements CodeAnalyzerPlugin {}")` |
+| resolvesCliCommand |  | RoleResolverTest | resolve | `resolve("@Command class CodeAtlasCli {}")` |
+| resolvesDocumentationRenderer |  | RoleResolverTest | resolve | `resolve("class MarkdownRenderer implements DocumentationRenderer {}")` |
+| resolvesDtoByClassName |  | RoleResolverTest | resolve | `resolve("class UserDTO {}")` |
+| returnsDefaultMessageForUnknownRole |  | RoleResolverTest | resolve | `resolve("class Utility {}")` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 14.
 
 ## Related Classes
 

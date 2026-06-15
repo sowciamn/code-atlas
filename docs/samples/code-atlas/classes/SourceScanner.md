@@ -33,60 +33,40 @@ None
 | CONFIG_FILE | `Pattern` |  |
 | excludedPaths | `Set<Path>` |  |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [SourceScanner](SourceScanner.md).isExcludedDirectory | `isExcludedDirectory(root.relativize(dir))` |
+| [SourceScanner](SourceScanner.md).isResource | `isResource(file, root)` |
+| [SourceScanner](SourceScanner.md).optionalFile | `optionalFile(root.resolve("build.gradle"))` |
+| [SourceScanner](SourceScanner.md).optionalFile | `optionalFile(root.resolve("pom.xml"))` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [SourceScanner](SourceScanner.md).scan | `isExcludedDirectory(root.relativize(dir))` |
+| [SourceScanner](SourceScanner.md).scan | `isResource(file, root)` |
+| [SourceScanner](SourceScanner.md).scan | `optionalFile(root.resolve("build.gradle"))` |
+| [SourceScanner](SourceScanner.md).scan | `optionalFile(root.resolve("pom.xml"))` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| isExcludedDirectory | DEFAULT_EXCLUDED_DIRECTORIES | contains | `DEFAULT_EXCLUDED_DIRECTORIES.contains(relativeDirectory.getFileName().toString())` |
-| isExcludedDirectory | excluded | getFileName | `excluded.getFileName()` |
-| isExcludedDirectory | excluded | getNameCount | `excluded.getNameCount()` |
-| isExcludedDirectory | excludedPaths | stream | `excludedPaths.stream()` |
-| isExcludedDirectory | excludedPaths.stream() | anyMatch | `excludedPaths.stream().anyMatch(excluded -> {     if (excluded.getNameCount() == 1 && relativeDirectory.getFileName().equals(excluded.getFileName())) {         return true;     }     return relativeDirectory.equals(excluded) \|\| relativeDirectory.startsWith(excluded); })` |
-| isExcludedDirectory | relativeDirectory | equals | `relativeDirectory.equals(excluded)` |
-| isExcludedDirectory | relativeDirectory | getFileName | `relativeDirectory.getFileName()` |
-| isExcludedDirectory | relativeDirectory | getFileName | `relativeDirectory.getFileName()` |
-| isExcludedDirectory | relativeDirectory.getFileName() | equals | `relativeDirectory.getFileName().equals(excluded.getFileName())` |
-| isExcludedDirectory | relativeDirectory.getFileName() | toString | `relativeDirectory.getFileName().toString()` |
-| isExcludedDirectory | relativeDirectory | startsWith | `relativeDirectory.startsWith(excluded)` |
-| isResource | "resources" | equals | `"resources".equals(relative.getName(index).toString())` |
-| isResource | relative | getName | `relative.getName(index)` |
-| isResource | relative.getName(index) | toString | `relative.getName(index).toString()` |
-| isResource | relative | getNameCount | `relative.getNameCount()` |
-| isResource | root | relativize | `root.relativize(file)` |
-| normalizeExcludedPath | Path | of | `Path.of(normalizedSeparators)` |
-| normalizeExcludedPath | Path.of(normalizedSeparators) | normalize | `Path.of(normalizedSeparators).normalize()` |
-| normalizeExcludedPath | path | isAbsolute | `path.isAbsolute()` |
-| normalizeExcludedPath | value | trim | `value.trim()` |
-| normalizeExcludedPath | value.trim() | replace | `value.trim().replace('\\', '/')` |
-| optionalFile | Files | isRegularFile | `Files.isRegularFile(path)` |
-| optionalFile | Optional | empty | `Optional.empty()` |
-| optionalFile | Optional | of | `Optional.of(path)` |
-| scan | CONFIG_FILE | matcher | `CONFIG_FILE.matcher(name)` |
-| scan | CONFIG_FILE.matcher(name) | matches | `CONFIG_FILE.matcher(name).matches()` |
-| scan | Comparator | comparing | `Comparator.comparing(path -> root.relativize(path).toString())` |
-| scan | Files | isDirectory | `Files.isDirectory(root)` |
-| scan | Files | walkFileTree | `Files.walkFileTree(root, new SimpleFileVisitor<>() {      @Override     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {         if (!dir.equals(root) && isExcludedDirectory(root.relativize(dir))) {             return FileVisitResult.SKIP_SUBTREE;         }         return FileVisitResult.CONTINUE;     }      @Override     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {         String name = file.getFileName().toString();         if (name.endsWith(".java")) {             javaFiles.add(file);         }         if (isResource(file, root)) {             resourceFiles.add(file);         }         if (CONFIG_FILE.matcher(name).matches()) {             configFiles.add(file);         }         return FileVisitResult.CONTINUE;     } })` |
-| scan | configFiles | add | `configFiles.add(file)` |
-| scan | configFiles | sort | `configFiles.sort(byRelativePath)` |
-| scan | dir | equals | `dir.equals(root)` |
-| scan | file | getFileName | `file.getFileName()` |
-| scan | file.getFileName() | toString | `file.getFileName().toString()` |
-| scan |  | isExcludedDirectory | `isExcludedDirectory(root.relativize(dir))` |
-| scan |  | isResource | `isResource(file, root)` |
-| scan | javaFiles | add | `javaFiles.add(file)` |
-| scan | javaFiles | sort | `javaFiles.sort(byRelativePath)` |
-| scan | name | endsWith | `name.endsWith(".java")` |
-| scan |  | optionalFile | `optionalFile(root.resolve("build.gradle"))` |
-| scan |  | optionalFile | `optionalFile(root.resolve("pom.xml"))` |
-| scan | resourceFiles | add | `resourceFiles.add(file)` |
-| scan | resourceFiles | sort | `resourceFiles.sort(byRelativePath)` |
-| scan | root | relativize | `root.relativize(dir)` |
-| scan | root | relativize | `root.relativize(path)` |
-| scan | root.relativize(path) | toString | `root.relativize(path).toString()` |
-| scan | root | resolve | `root.resolve("build.gradle")` |
-| scan | root | resolve | `root.resolve("pom.xml")` |
-| scan | rootDirectory | toAbsolutePath | `rootDirectory.toAbsolutePath()` |
-| scan | rootDirectory.toAbsolutePath() | normalize | `rootDirectory.toAbsolutePath().normalize()` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| scan |  | SourceScanner | isExcludedDirectory | `isExcludedDirectory(root.relativize(dir))` |
+| scan |  | SourceScanner | isResource | `isResource(file, root)` |
+| scan |  | SourceScanner | optionalFile | `optionalFile(root.resolve("build.gradle"))` |
+| scan |  | SourceScanner | optionalFile | `optionalFile(root.resolve("pom.xml"))` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 46.
 
 ## Related Classes
 

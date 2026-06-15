@@ -30,13 +30,35 @@
 | --- | --- | --- |
 | userService | `UserService` |  |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [UserService](UserService.md).create | `userService.create(request)` |
+| [UserService](UserService.md).findAll | `userService.findAll()` |
+| [UserService](UserService.md).findById | `userService.findById(id)` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| - | - |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| create | userService | create | `userService.create(request)` |
-| findAll | userService | findAll | `userService.findAll()` |
-| findById | userService | findById | `userService.findById(id)` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| create | userService | UserService | create | `userService.create(request)` |
+| findAll | userService | UserService | findAll | `userService.findAll()` |
+| findById | userService | UserService | findById | `userService.findById(id)` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 

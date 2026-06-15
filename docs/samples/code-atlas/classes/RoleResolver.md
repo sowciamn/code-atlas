@@ -29,31 +29,38 @@ None
 | --- | --- | --- |
 | UNKNOWN_ROLE | `String` |  |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [RoleResolver](RoleResolver.md).hasAnnotation | `hasAnnotation(type, "Command")` |
+| [RoleResolver](RoleResolver.md).hasSuperType | `hasSuperType(type, "CodeAnalyzerPlugin")` |
+| [RoleResolver](RoleResolver.md).hasSuperType | `hasSuperType(type, "DocumentationRenderer")` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [RoleResolver](RoleResolver.md).resolve | `hasAnnotation(type, "Command")` |
+| [RoleResolver](RoleResolver.md).resolve | `hasSuperType(type, "CodeAnalyzerPlugin")` |
+| [RoleResolver](RoleResolver.md).resolve | `hasSuperType(type, "DocumentationRenderer")` |
+| [RoleResolverTest](RoleResolverTest.md).resolve | `resolver.resolve(type)` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| hasAnnotation | annotation | getName | `annotation.getName()` |
-| hasAnnotation | annotation.getName() | getIdentifier | `annotation.getName().getIdentifier()` |
-| hasAnnotation | annotationName | equals | `annotationName.equals(annotation.getName().getIdentifier())` |
-| hasAnnotation | type | getAnnotations | `type.getAnnotations()` |
-| hasAnnotation | type.getAnnotations() | stream | `type.getAnnotations().stream()` |
-| hasAnnotation | type.getAnnotations().stream() | anyMatch | `type.getAnnotations().stream().anyMatch(annotation -> annotationName.equals(annotation.getName().getIdentifier()))` |
-| hasSuperType | Stream | concat | `Stream.concat(declaration.getImplementedTypes().stream(), declaration.getExtendedTypes().stream())` |
-| hasSuperType | Stream.concat(declaration.getImplementedTypes().stream(), declaration.getExtendedTypes().stream()) | anyMatch | `Stream.concat(declaration.getImplementedTypes().stream(), declaration.getExtendedTypes().stream()).anyMatch(candidate -> typeName.equals(candidate.getNameAsString()))` |
-| hasSuperType | candidate | getNameAsString | `candidate.getNameAsString()` |
-| hasSuperType | declaration | getExtendedTypes | `declaration.getExtendedTypes()` |
-| hasSuperType | declaration.getExtendedTypes() | stream | `declaration.getExtendedTypes().stream()` |
-| hasSuperType | declaration | getImplementedTypes | `declaration.getImplementedTypes()` |
-| hasSuperType | declaration.getImplementedTypes() | stream | `declaration.getImplementedTypes().stream()` |
-| hasSuperType | typeName | equals | `typeName.equals(candidate.getNameAsString())` |
-| resolve |  | hasAnnotation | `hasAnnotation(type, "Command")` |
-| resolve |  | hasSuperType | `hasSuperType(type, "CodeAnalyzerPlugin")` |
-| resolve |  | hasSuperType | `hasSuperType(type, "DocumentationRenderer")` |
-| resolve | type | getNameAsString | `type.getNameAsString()` |
-| resolve | type | getNameAsString | `type.getNameAsString()` |
-| resolve | type.getNameAsString() | endsWith | `type.getNameAsString().endsWith("DTO")` |
-| resolve | type.getNameAsString() | endsWith | `type.getNameAsString().endsWith("Dto")` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| resolve |  | RoleResolver | hasAnnotation | `hasAnnotation(type, "Command")` |
+| resolve |  | RoleResolver | hasSuperType | `hasSuperType(type, "CodeAnalyzerPlugin")` |
+| resolve |  | RoleResolver | hasSuperType | `hasSuperType(type, "DocumentationRenderer")` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 18.
 
 ## Related Classes
 

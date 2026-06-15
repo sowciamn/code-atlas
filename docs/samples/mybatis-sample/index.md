@@ -14,6 +14,7 @@
 ## Documents
 
 * [Architecture](architecture.md)
+* [Impact Map](impact-map.md)
 * [API](api.md)
 * [SQL Statements](sql.md)
 * [Tables](tables.md)

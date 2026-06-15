@@ -126,9 +126,12 @@ public final class SpringBootAnalyzer implements CodeAnalyzerPlugin {
                 endpoints,
                 base.configs(),
                 base.relations(),
+                base.variableTypes(),
                 base.methodCalls(),
+                base.methodCallRelations(),
                 base.sqlStatements(),
-                base.tableUsages());
+                base.tableUsages(),
+                base.mapperStatementRelations());
     }
 
     /**

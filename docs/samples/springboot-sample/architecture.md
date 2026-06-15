@@ -50,3 +50,11 @@ None
 | [UserService](classes/UserService.md) | [UserDto](classes/UserDto.md) | METHOD_RETURN_TYPE | create |
 | [UserService](classes/UserService.md) | [UserDto](classes/UserDto.md) | METHOD_RETURN_TYPE | findAll |
 | [UserService](classes/UserService.md) | [UserDto](classes/UserDto.md) | METHOD_RETURN_TYPE | findById |
+
+## Method Call Overview
+
+| Source | Target | Expression |
+| --- | --- | --- |
+| [UserController](classes/UserController.md).create | [UserService](classes/UserService.md).create | `userService.create(request)` |
+| [UserController](classes/UserController.md).findAll | [UserService](classes/UserService.md).findAll | `userService.findAll()` |
+| [UserController](classes/UserController.md).findById | [UserService](classes/UserService.md).findById | `userService.findById(id)` |

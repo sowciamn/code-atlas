@@ -28,11 +28,70 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [JavaAnalyzerTest](JavaAnalyzerTest.md).extractsClassPackageMethodsAnnotationsAndFields | `result.annotations()` |
+| [JavaAnalyzerTest](JavaAnalyzerTest.md).extractsClassPackageMethodsAnnotationsAndFields | `result.className()` |
+| [JavaAnalyzerTest](JavaAnalyzerTest.md).extractsClassPackageMethodsAnnotationsAndFields | `result.fields()` |
+| [JavaAnalyzerTest](JavaAnalyzerTest.md).extractsClassPackageMethodsAnnotationsAndFields | `result.methods()` |
+| [JavaAnalyzerTest](JavaAnalyzerTest.md).extractsClassPackageMethodsAnnotationsAndFields | `result.packageName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.annotations()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.componentType()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.declarationKind()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.fields()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.fields()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.methods()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.methods()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.packageName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.roleSummary()` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classDoc.sourcePath()` |
+| [MarkdownRenderer](MarkdownRenderer.md).matchingMyBatisStatements | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).matchingMyBatisStatements | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).matchingMyBatisStatements | `classDoc.packageName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).matchingMyBatisStatements | `classDoc.packageName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `classDoc.className()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).applyMapperRole | `classDoc.annotations()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).applyMapperRole | `classDoc.roleSummary()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).applyMapperRole | `classDoc.roleSummary()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).applyMapperRole | `classDoc.withRoleSummary(MAPPER_ROLE)` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `classDoc.className()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `classDoc.className()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `classDoc.className()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `classDoc.methods()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `classDoc.packageName()` |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md).mapperStatementRelations | `classDoc.packageName()` |
+| [SpringBootAnalyzer](SpringBootAnalyzer.md).componentType | `classDoc.annotations()` |
+| [SpringBootAnalyzer](SpringBootAnalyzer.md).componentType | `classDoc.className()` |
+| [SpringBootAnalyzer](SpringBootAnalyzer.md).componentType | `classDoc.className()` |
+| [SpringBootAnalyzer](SpringBootAnalyzer.md).roleSummary | `classDoc.annotations()` |
+| [SpringBootAnalyzer](SpringBootAnalyzer.md).roleSummary | `classDoc.roleSummary()` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| - | - | - | - |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 
@@ -56,6 +115,7 @@ None
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | classDoc |
 | [MarkdownRenderer](MarkdownRenderer.md) | METHOD_PARAMETER | classes |
 | [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_PARAMETER | classDoc |
+| [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_PARAMETER | classes |
 | [MyBatisAnalyzer](MyBatisAnalyzer.md) | METHOD_RETURN_TYPE | applyMapperRole |
 | [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_PARAMETER | classDoc |
 | [SpringBootAnalyzer](SpringBootAnalyzer.md) | METHOD_PARAMETER | classes |

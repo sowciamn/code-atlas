@@ -3,6 +3,7 @@ package io.github.codeatlas.plugin.mybatis;
 import io.github.codeatlas.core.model.AnalysisResult;
 import io.github.codeatlas.core.model.ClassDoc;
 import io.github.codeatlas.core.model.ComponentType;
+import io.github.codeatlas.core.model.MethodDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.scan.SourceScanner;
 import org.junit.jupiter.api.Test;
@@ -37,12 +38,15 @@ class MyBatisAnalyzerTest {
                 Path.of("src/main/java/example/UserMapper.java"),
                 ComponentType.UNKNOWN,
                 List.of("Mapper"),
-                List.of(),
+                List.of(new MethodDoc("findAll", "List<User>", List.of(), List.of())),
                 List.of(),
                 "コードから機械的に判定できる役割情報はありません。");
         AnalysisResult current = new AnalysisResult(
                 new ProjectOverview("sample", tempDir, 1, 0, 0, 0, 0, 0),
                 List.of(mapper),
+                List.of(),
+                List.of(),
+                List.of(),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -66,5 +70,52 @@ class MyBatisAnalyzerTest {
             assertThat(usage.tableName()).isEqualTo("users");
             assertThat(usage.sourceName()).isEqualTo("findAll");
         });
+        assertThat(result.mapperStatementRelations()).singleElement().satisfies(relation -> {
+            assertThat(relation.mapperClassName()).isEqualTo("UserMapper");
+            assertThat(relation.mapperMethodName()).isEqualTo("findAll");
+            assertThat(relation.statementId()).isEqualTo("findAll");
+            assertThat(relation.tableNames()).containsExactly("users");
+        });
+    }
+
+    @Test
+    void doesNotRelateStatementWhenMapperMethodNameDoesNotMatch() throws Exception {
+        Path javaFile = tempDir.resolve("src/main/java/example/UserMapper.java");
+        Files.createDirectories(javaFile.getParent());
+        Files.writeString(javaFile, "@Mapper interface UserMapper { void save(); }");
+        Path xml = tempDir.resolve("src/main/resources/mapper/UserMapper.xml");
+        Files.createDirectories(xml.getParent());
+        Files.writeString(xml, """
+                <mapper namespace="example.UserMapper">
+                    <select id="findAll">select * from users</select>
+                </mapper>
+                """);
+
+        ClassDoc mapper = new ClassDoc(
+                "example",
+                "UserMapper",
+                "INTERFACE",
+                Path.of("src/main/java/example/UserMapper.java"),
+                ComponentType.UNKNOWN,
+                List.of("Mapper"),
+                List.of(new MethodDoc("save", "void", List.of(), List.of())),
+                List.of(),
+                "Mapper");
+        AnalysisResult current = new AnalysisResult(
+                new ProjectOverview("sample", tempDir, 1, 0, 0, 0, 0, 0),
+                List.of(mapper),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of());
+        AnalysisResult result = new MyBatisAnalyzer()
+                .analyze(new SourceScanner().scan(tempDir), current);
+
+        assertThat(result.mapperStatementRelations()).isEmpty();
     }
 }

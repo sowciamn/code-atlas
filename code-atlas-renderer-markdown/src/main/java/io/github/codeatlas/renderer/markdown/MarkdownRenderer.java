@@ -6,7 +6,10 @@ import io.github.codeatlas.core.model.ClassDoc;
 import io.github.codeatlas.core.model.ClassRelationDoc;
 import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
+import io.github.codeatlas.core.model.MapperStatementRelationDoc;
+import io.github.codeatlas.core.model.MethodCallCategory;
 import io.github.codeatlas.core.model.MethodCallDoc;
+import io.github.codeatlas.core.model.MethodCallRelationDoc;
 import io.github.codeatlas.core.model.MethodDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.SqlStatementDoc;
@@ -56,6 +59,7 @@ public final class MarkdownRenderer implements DocumentationRenderer {
 
         write(output.resolve("index.md"), index(result.overview()));
         write(output.resolve("architecture.md"), architecture(result));
+        write(output.resolve("impact-map.md"), impactMap(result));
         write(output.resolve("api.md"), api(result));
         write(output.resolve("sql.md"), sql(result.sqlStatements()));
         write(output.resolve("tables.md"), tables(result.tableUsages()));
@@ -86,6 +90,7 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                 ## Documents
 
                 * [Architecture](architecture.md)
+                * [Impact Map](impact-map.md)
                 * [API](api.md)
                 * [SQL Statements](sql.md)
                 * [Tables](tables.md)
@@ -164,7 +169,29 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                     .append(" | ").append(cell(relation.sourceMemberName()))
                     .append(" |\n"));
         }
+        appendMethodCallOverview(markdown, result);
         return markdown.toString();
+    }
+
+    private void appendMethodCallOverview(StringBuilder markdown, AnalysisResult result) {
+        Set<String> classNames = classNames(result.classes());
+        List<MethodCallRelationDoc> relations = sortedMethodCallRelations(
+                result.methodCallRelations());
+        markdown.append("\n## Method Call Overview\n\n")
+                .append("| Source | Target | Expression |\n")
+                .append("| --- | --- | --- |\n");
+        if (relations.isEmpty()) {
+            markdown.append("| - | - | - |\n");
+            return;
+        }
+        relations.forEach(relation -> markdown
+                .append("| ").append(classLink(
+                        relation.sourceClassName(), "classes/", classNames))
+                .append('.').append(cell(relation.sourceMethodName()))
+                .append(" | ").append(classLink(
+                        relation.targetClassName(), "classes/", classNames))
+                .append('.').append(cell(relation.targetMethodName()))
+                .append(" | `").append(cell(relation.expression())).append("` |\n"));
     }
 
     private String api(AnalysisResult result) {
@@ -228,14 +255,58 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                     .append(" | ").append(cell(String.join(", ", field.annotations())))
                     .append(" |\n"));
         }
+        appendMethodCallRelations(markdown, classDoc.className(), result);
         appendMethodCalls(markdown, classDoc.className(), result.methodCalls());
         appendRelatedClasses(
                 markdown, classDoc.className(), result.relations(), classNames(result.classes()));
         List<SqlStatementDoc> mapperStatements =
                 matchingMyBatisStatements(classDoc, result.sqlStatements());
         appendMyBatisStatements(markdown, mapperStatements);
+        appendMapperStatementRelations(
+                markdown, classDoc.className(), result.mapperStatementRelations());
         appendRelatedTables(markdown, mapperStatements);
         return markdown.toString();
+    }
+
+    private void appendMethodCallRelations(
+            StringBuilder markdown,
+            String className,
+            AnalysisResult result
+    ) {
+        Set<String> classNames = classNames(result.classes());
+        List<MethodCallRelationDoc> outgoing = sortedMethodCallRelations(
+                result.methodCallRelations().stream()
+                        .filter(relation -> relation.sourceClassName().equals(className))
+                        .toList());
+        List<MethodCallRelationDoc> incoming = sortedMethodCallRelations(
+                result.methodCallRelations().stream()
+                        .filter(relation -> relation.targetClassName().equals(className))
+                        .toList());
+        markdown.append("\n## Method Call Relations\n\n")
+                .append("### Outgoing Calls\n\n")
+                .append("| Target | Expression |\n")
+                .append("| --- | --- |\n");
+        if (outgoing.isEmpty()) {
+            markdown.append("| - | - |\n");
+        } else {
+            outgoing.forEach(relation -> markdown
+                    .append("| ").append(classLink(
+                            relation.targetClassName(), "", classNames))
+                    .append('.').append(cell(relation.targetMethodName()))
+                    .append(" | `").append(cell(relation.expression())).append("` |\n"));
+        }
+        markdown.append("\n### Incoming Calls\n\n")
+                .append("| Source | Expression |\n")
+                .append("| --- | --- |\n");
+        if (incoming.isEmpty()) {
+            markdown.append("| - | - |\n");
+        } else {
+            incoming.forEach(relation -> markdown
+                    .append("| ").append(classLink(
+                            relation.sourceClassName(), "", classNames))
+                    .append('.').append(cell(relation.sourceMethodName()))
+                    .append(" | `").append(cell(relation.expression())).append("` |\n"));
+        }
     }
 
     private void appendMethodCalls(
@@ -245,21 +316,32 @@ public final class MarkdownRenderer implements DocumentationRenderer {
     ) {
         List<MethodCallDoc> matching = methodCalls.stream()
                 .filter(call -> call.sourceClassName().equals(className))
+                .filter(call -> call.category() == MethodCallCategory.PROJECT)
                 .sorted(Comparator.comparing(MethodCallDoc::sourceMethodName)
                         .thenComparing(MethodCallDoc::expression))
                 .toList();
         markdown.append("\n## Method Calls\n\n")
-                .append("| Source Method | Scope | Called Method | Expression |\n")
-                .append("| --- | --- | --- | --- |\n");
+                .append("### Project Calls\n\n")
+                .append("| Source Method | Scope | Resolved Target | Called Method | Expression |\n")
+                .append("| --- | --- | --- | --- | --- |\n");
         if (matching.isEmpty()) {
-            markdown.append("| - | - | - | - |\n");
+            markdown.append("| - | - | - | - | - |\n");
         } else {
             matching.forEach(call -> markdown
                     .append("| ").append(cell(call.sourceMethodName()))
                     .append(" | ").append(cell(call.scopeName()))
+                    .append(" | ").append(cell(call.resolvedTargetClassName()))
                     .append(" | ").append(cell(call.calledMethodName()))
                     .append(" | `").append(cell(call.expression())).append("` |\n"));
         }
+        long omittedCount = methodCalls.stream()
+                .filter(call -> call.sourceClassName().equals(className))
+                .filter(call -> call.category() == MethodCallCategory.LIBRARY_OR_UTILITY)
+                .count();
+        markdown.append("\n### Library / Utility Calls\n\n")
+                .append("Library / Utility calls are omitted from this page. Count: ")
+                .append(omittedCount)
+                .append(".\n");
     }
 
     private void appendRelatedClasses(
@@ -358,8 +440,164 @@ public final class MarkdownRenderer implements DocumentationRenderer {
         }
     }
 
+    private void appendMapperStatementRelations(
+            StringBuilder markdown,
+            String className,
+            List<MapperStatementRelationDoc> relations
+    ) {
+        List<MapperStatementRelationDoc> matching = relations.stream()
+                .filter(relation -> relation.mapperClassName().equals(className))
+                .sorted(Comparator.comparing(MapperStatementRelationDoc::mapperMethodName)
+                        .thenComparing(MapperStatementRelationDoc::statementId))
+                .toList();
+        if (matching.isEmpty()) {
+            return;
+        }
+        markdown.append("\n## Mapper Statement Relations\n\n")
+                .append("| Mapper Method | Statement | Type | Tables |\n")
+                .append("| --- | --- | --- | --- |\n");
+        matching.forEach(relation -> markdown
+                .append("| ").append(cell(relation.mapperMethodName()))
+                .append(" | ").append(cell(relation.statementId()))
+                .append(" | ").append(relation.statementType())
+                .append(" | ").append(cell(String.join(", ", relation.tableNames())))
+                .append(" |\n"));
+    }
+
     private List<ClassRelationDoc> sortedRelations(List<ClassRelationDoc> relations) {
         return relations.stream().sorted(RELATION_ORDER).toList();
+    }
+
+    private List<MethodCallRelationDoc> sortedMethodCallRelations(
+            List<MethodCallRelationDoc> relations
+    ) {
+        return relations.stream()
+                .sorted(Comparator.comparing(MethodCallRelationDoc::sourceClassName)
+                        .thenComparing(MethodCallRelationDoc::sourceMethodName)
+                        .thenComparing(MethodCallRelationDoc::targetClassName)
+                        .thenComparing(MethodCallRelationDoc::targetMethodName)
+                        .thenComparing(MethodCallRelationDoc::expression))
+                .toList();
+    }
+
+    private String impactMap(AnalysisResult result) {
+        StringBuilder markdown = new StringBuilder("""
+                # Impact Map
+
+                ## API to Table
+
+                | API | Controller | Service | Mapper | Statement | Tables |
+                | --- | --- | --- | --- | --- | --- |
+                """);
+        List<ImpactRow> rows = impactRows(result);
+        if (rows.isEmpty()) {
+            markdown.append("| - | - | - | - | - | - |\n");
+        } else {
+            rows.forEach(row -> markdown
+                    .append("| ").append(cell(row.api()))
+                    .append(" | ").append(cell(row.controller()))
+                    .append(" | ").append(cell(row.service()))
+                    .append(" | ").append(cell(row.mapper()))
+                    .append(" | ").append(cell(row.statement()))
+                    .append(" | ").append(cell(row.tables()))
+                    .append(" |\n"));
+        }
+        return markdown.toString();
+    }
+
+    private List<ImpactRow> impactRows(AnalysisResult result) {
+        List<ImpactRow> rows = new java.util.ArrayList<>();
+        List<ApiEndpointDoc> endpoints = result.endpoints().stream()
+                .sorted(Comparator.comparing(ApiEndpointDoc::path)
+                        .thenComparing(ApiEndpointDoc::httpMethod)
+                        .thenComparing(ApiEndpointDoc::className)
+                        .thenComparing(ApiEndpointDoc::methodName))
+                .toList();
+        for (ApiEndpointDoc endpoint : endpoints) {
+            String api = endpoint.httpMethod() + " " + endpoint.path();
+            String controller = methodName(endpoint.className(), endpoint.methodName());
+            List<MethodCallRelationDoc> serviceCalls = result.methodCallRelations().stream()
+                    .filter(relation -> relation.sourceClassName().equals(endpoint.className()))
+                    .filter(relation -> relation.sourceMethodName().equals(endpoint.methodName()))
+                    .filter(relation -> componentType(
+                            relation.targetClassName(), result.classes()) == ComponentType.SERVICE)
+                    .toList();
+            if (serviceCalls.isEmpty()) {
+                rows.add(new ImpactRow(api, controller, "-", "-", "-", "-"));
+                continue;
+            }
+            for (MethodCallRelationDoc serviceCall : serviceCalls) {
+                String service = methodName(
+                        serviceCall.targetClassName(), serviceCall.targetMethodName());
+                List<MethodCallRelationDoc> mapperCalls = result.methodCallRelations().stream()
+                        .filter(relation -> relation.sourceClassName()
+                                .equals(serviceCall.targetClassName()))
+                        .filter(relation -> relation.sourceMethodName()
+                                .equals(serviceCall.targetMethodName()))
+                        .filter(relation -> isMapper(relation.targetClassName(), result))
+                        .toList();
+                if (mapperCalls.isEmpty()) {
+                    rows.add(new ImpactRow(api, controller, service, "-", "-", "-"));
+                    continue;
+                }
+                for (MethodCallRelationDoc mapperCall : mapperCalls) {
+                    String mapper = methodName(
+                            mapperCall.targetClassName(), mapperCall.targetMethodName());
+                    List<MapperStatementRelationDoc> statementRelations =
+                            result.mapperStatementRelations().stream()
+                                    .filter(relation -> relation.mapperClassName()
+                                            .equals(mapperCall.targetClassName()))
+                                    .filter(relation -> relation.mapperMethodName()
+                                            .equals(mapperCall.targetMethodName()))
+                                    .toList();
+                    if (statementRelations.isEmpty()) {
+                        rows.add(new ImpactRow(api, controller, service, mapper, "-", "-"));
+                        continue;
+                    }
+                    statementRelations.forEach(relation -> rows.add(new ImpactRow(
+                            api,
+                            controller,
+                            service,
+                            mapper,
+                            relation.statementId(),
+                            relation.tableNames().isEmpty()
+                                    ? "-"
+                                    : String.join(", ", relation.tableNames()))));
+                }
+            }
+        }
+        return rows;
+    }
+
+    private ComponentType componentType(String className, List<ClassDoc> classes) {
+        return classes.stream()
+                .filter(classDoc -> classDoc.className().equals(className))
+                .map(ClassDoc::componentType)
+                .findFirst()
+                .orElse(ComponentType.UNKNOWN);
+    }
+
+    private boolean isMapper(String className, AnalysisResult result) {
+        return className.endsWith("Mapper")
+                || result.classes().stream()
+                        .filter(classDoc -> classDoc.className().equals(className))
+                        .anyMatch(classDoc -> classDoc.annotations().contains("Mapper"))
+                || result.mapperStatementRelations().stream()
+                        .anyMatch(relation -> relation.mapperClassName().equals(className));
+    }
+
+    private String methodName(String className, String methodName) {
+        return className + "." + methodName;
+    }
+
+    private record ImpactRow(
+            String api,
+            String controller,
+            String service,
+            String mapper,
+            String statement,
+            String tables
+    ) {
     }
 
     private String configurations(List<ConfigDoc> configs) {

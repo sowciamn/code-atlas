@@ -27,11 +27,38 @@ None
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.classCount()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.controllerCount()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.endpointCount()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.entityCount()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.projectName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.repositoryCount()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.serviceCount()` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `overview.sourceRoot()` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| - | - | - | - |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 

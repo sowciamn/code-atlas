@@ -30,11 +30,31 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| - | - |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| - | - | - | - |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 0.
 
 ## Related Classes
 
@@ -58,6 +78,15 @@
 | SELECT | findByMonth | household_account_book, category | `src/main/resources/mapper/HouseholdAccountBookMapper.xml` |
 | INSERT | insert | household_account_book | `src/main/resources/mapper/HouseholdAccountBookMapper.xml` |
 | UPDATE | update | household_account_book | `src/main/resources/mapper/HouseholdAccountBookMapper.xml` |
+
+## Mapper Statement Relations
+
+| Mapper Method | Statement | Type | Tables |
+| --- | --- | --- | --- |
+| deleteById | deleteById | DELETE | household_account_book |
+| findByMonth | findByMonth | SELECT | household_account_book, category |
+| insert | insert | INSERT | household_account_book |
+| update | update | UPDATE | household_account_book |
 
 ## Related Tables
 

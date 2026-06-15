@@ -28,25 +28,41 @@ None
 | --- | --- | --- |
 | plugins | `List<CodeAnalyzerPlugin>` |  |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [AnalysisEngine](AnalysisEngine.md).emptyResult | `emptyResult(source)` |
+| [CodeAnalyzerPlugin](CodeAnalyzerPlugin.md).analyze | `plugin.analyze(source, result)` |
+| [CodeAnalyzerPlugin](CodeAnalyzerPlugin.md).supports | `plugin.supports(source)` |
+| [ProjectSource](ProjectSource.md).rootDirectory | `source.rootDirectory()` |
+| [ProjectSource](ProjectSource.md).rootDirectory | `source.rootDirectory()` |
+| [ProjectSource](ProjectSource.md).rootDirectory | `source.rootDirectory()` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [AnalysisEngine](AnalysisEngine.md).analyze | `emptyResult(source)` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| analyze |  | emptyResult | `emptyResult(source)` |
-| analyze | plugin | analyze | `plugin.analyze(source, result)` |
-| analyze | plugin | supports | `plugin.supports(source)` |
-| analyze | source | rootDirectory | `source.rootDirectory()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | List | of | `List.of()` |
-| emptyResult | source | rootDirectory | `source.rootDirectory()` |
-| emptyResult | source | rootDirectory | `source.rootDirectory()` |
-| emptyResult | source.rootDirectory() | getFileName | `source.rootDirectory().getFileName()` |
-| emptyResult | source.rootDirectory().getFileName() | toString | `source.rootDirectory().getFileName().toString()` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| analyze |  | AnalysisEngine | emptyResult | `emptyResult(source)` |
+| analyze | plugin | CodeAnalyzerPlugin | analyze | `plugin.analyze(source, result)` |
+| analyze | plugin | CodeAnalyzerPlugin | supports | `plugin.supports(source)` |
+| analyze | source | ProjectSource | rootDirectory | `source.rootDirectory()` |
+| emptyResult | source | ProjectSource | rootDirectory | `source.rootDirectory()` |
+| emptyResult | source | ProjectSource | rootDirectory | `source.rootDirectory()` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 12.
 
 ## Related Classes
 

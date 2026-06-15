@@ -23,14 +23,23 @@ None
 | index | `String` | ProjectOverview overview |  |
 | displaySourceRoot | `String` | Path sourceRoot |  |
 | architecture | `String` | AnalysisResult result |  |
+| appendMethodCallOverview | `void` | StringBuilder markdown, AnalysisResult result |  |
 | api | `String` | AnalysisResult result |  |
 | classPage | `String` | ClassDoc classDoc, AnalysisResult result |  |
+| appendMethodCallRelations | `void` | StringBuilder markdown, String className, AnalysisResult result |  |
 | appendMethodCalls | `void` | StringBuilder markdown, String className, List<MethodCallDoc> methodCalls |  |
 | appendRelatedClasses | `void` | StringBuilder markdown, String className, List<ClassRelationDoc> relations, Set<String> classNames |  |
 | matchingMyBatisStatements | `List<SqlStatementDoc>` | ClassDoc classDoc, List<SqlStatementDoc> statements |  |
 | appendMyBatisStatements | `void` | StringBuilder markdown, List<SqlStatementDoc> statements |  |
 | appendRelatedTables | `void` | StringBuilder markdown, List<SqlStatementDoc> statements |  |
+| appendMapperStatementRelations | `void` | StringBuilder markdown, String className, List<MapperStatementRelationDoc> relations |  |
 | sortedRelations | `List<ClassRelationDoc>` | List<ClassRelationDoc> relations |  |
+| sortedMethodCallRelations | `List<MethodCallRelationDoc>` | List<MethodCallRelationDoc> relations |  |
+| impactMap | `String` | AnalysisResult result |  |
+| impactRows | `List<ImpactRow>` | AnalysisResult result |  |
+| componentType | `ComponentType` | String className, List<ClassDoc> classes |  |
+| isMapper | `boolean` | String className, AnalysisResult result |  |
+| methodName | `String` | String className, String methodName |  |
 | configurations | `String` | List<ConfigDoc> configs |  |
 | sql | `String` | List<SqlStatementDoc> statements |  |
 | tables | `String` | List<TableUsageDoc> usages |  |
@@ -49,515 +58,509 @@ None
 | --- | --- | --- |
 | RELATION_ORDER | `Comparator<ClassRelationDoc>` |  |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).endpoints | `result.endpoints()` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(endpoint.httpMethod())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(endpoint.methodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(endpoint.path())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(endpoint.sourcePath())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(endpoint.className(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classNames | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(String.join(", ", relation.tableNames()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.mapperMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.statementId())` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).methodCallRelations | `result.methodCallRelations()` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.sourceMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.sourceClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.targetClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classNames | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sortedMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations())` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).methodCallRelations | `result.methodCallRelations()` |
+| [AnalysisResult](AnalysisResult.md).methodCallRelations | `result.methodCallRelations()` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.sourceMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.sourceClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.targetClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classNames | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sortedMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations().stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sortedMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations().stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(call.calledMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(call.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(call.resolvedTargetClassName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(call.scopeName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(call.sourceMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(String.join(", ", statement.tableNames()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.sourceMemberName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.sourceMemberName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.sourceClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.targetClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).sortedRelations | `sortedRelations(relations.stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sortedRelations | `sortedRelations(relations.stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(tableName)` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).relations | `result.relations()` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `appendMethodCallOverview(markdown, result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(relation.sourceMemberName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.sourceClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `classLink(relation.targetClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classNames | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sortedRelations | `sortedRelations(result.relations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).title | `title(type)` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(className)` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(className)` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).mapperStatementRelations | `result.mapperStatementRelations()` |
+| [AnalysisResult](AnalysisResult.md).methodCalls | `result.methodCalls()` |
+| [AnalysisResult](AnalysisResult.md).relations | `result.relations()` |
+| [AnalysisResult](AnalysisResult.md).sqlStatements | `result.sqlStatements()` |
+| [ClassDoc](ClassDoc.md).annotations | `classDoc.annotations()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).componentType | `classDoc.componentType()` |
+| [ClassDoc](ClassDoc.md).declarationKind | `classDoc.declarationKind()` |
+| [ClassDoc](ClassDoc.md).fields | `classDoc.fields()` |
+| [ClassDoc](ClassDoc.md).fields | `classDoc.fields()` |
+| [ClassDoc](ClassDoc.md).methods | `classDoc.methods()` |
+| [ClassDoc](ClassDoc.md).methods | `classDoc.methods()` |
+| [ClassDoc](ClassDoc.md).packageName | `classDoc.packageName()` |
+| [ClassDoc](ClassDoc.md).roleSummary | `classDoc.roleSummary()` |
+| [ClassDoc](ClassDoc.md).sourcePath | `classDoc.sourcePath()` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendCodeList | `appendCodeList(markdown, classDoc.annotations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMapperStatementRelations | `appendMapperStatementRelations(markdown, classDoc.className(), result.mapperStatementRelations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `appendMethodCallRelations(markdown, classDoc.className(), result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCalls | `appendMethodCalls(markdown, classDoc.className(), result.methodCalls())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMyBatisStatements | `appendMyBatisStatements(markdown, mapperStatements)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `appendRelatedClasses(markdown, classDoc.className(), result.relations(), classNames(result.classes()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedTables | `appendRelatedTables(markdown, mapperStatements)` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(String.join(", ", field.annotations()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(String.join(", ", method.annotations()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(field.name())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(field.type())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(method.methodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(method.returnType())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(parameters(method))` |
+| [MarkdownRenderer](MarkdownRenderer.md).classNames | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).matchingMyBatisStatements | `matchingMyBatisStatements(classDoc, result.sqlStatements())` |
+| [MarkdownRenderer](MarkdownRenderer.md).parameters | `parameters(method)` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(row.api())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(row.controller())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(row.mapper())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(row.service())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(row.statement())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(row.tables())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `impactRows(result)` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).endpoints | `result.endpoints()` |
+| [AnalysisResult](AnalysisResult.md).mapperStatementRelations | `result.mapperStatementRelations()` |
+| [AnalysisResult](AnalysisResult.md).methodCallRelations | `result.methodCallRelations()` |
+| [AnalysisResult](AnalysisResult.md).methodCallRelations | `result.methodCallRelations()` |
+| [ApiEndpointDoc](ApiEndpointDoc.md).className | `endpoint.className()` |
+| [ApiEndpointDoc](ApiEndpointDoc.md).className | `endpoint.className()` |
+| [ApiEndpointDoc](ApiEndpointDoc.md).httpMethod | `endpoint.httpMethod()` |
+| [ApiEndpointDoc](ApiEndpointDoc.md).methodName | `endpoint.methodName()` |
+| [ApiEndpointDoc](ApiEndpointDoc.md).methodName | `endpoint.methodName()` |
+| [ApiEndpointDoc](ApiEndpointDoc.md).path | `endpoint.path()` |
+| [MarkdownRenderer](MarkdownRenderer.md).componentType | `componentType(relation.targetClassName(), result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).isMapper | `isMapper(relation.targetClassName(), result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).methodName | `methodName(endpoint.className(), endpoint.methodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).methodName | `methodName(mapperCall.targetClassName(), mapperCall.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).methodName | `methodName(serviceCall.targetClassName(), serviceCall.targetMethodName())` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetClassName | `mapperCall.targetClassName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetClassName | `mapperCall.targetClassName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetClassName | `serviceCall.targetClassName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetClassName | `serviceCall.targetClassName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetMethodName | `mapperCall.targetMethodName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetMethodName | `mapperCall.targetMethodName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetMethodName | `serviceCall.targetMethodName()` |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md).targetMethodName | `serviceCall.targetMethodName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).displaySourceRoot | `displaySourceRoot(overview.sourceRoot())` |
+| [ProjectOverview](ProjectOverview.md).classCount | `overview.classCount()` |
+| [ProjectOverview](ProjectOverview.md).controllerCount | `overview.controllerCount()` |
+| [ProjectOverview](ProjectOverview.md).endpointCount | `overview.endpointCount()` |
+| [ProjectOverview](ProjectOverview.md).entityCount | `overview.entityCount()` |
+| [ProjectOverview](ProjectOverview.md).projectName | `overview.projectName()` |
+| [ProjectOverview](ProjectOverview.md).repositoryCount | `overview.repositoryCount()` |
+| [ProjectOverview](ProjectOverview.md).serviceCount | `overview.serviceCount()` |
+| [ProjectOverview](ProjectOverview.md).sourceRoot | `overview.sourceRoot()` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).mapperStatementRelations | `result.mapperStatementRelations()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [ClassDoc](ClassDoc.md).packageName | `classDoc.packageName()` |
+| [ClassDoc](ClassDoc.md).packageName | `classDoc.packageName()` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(first.ownerName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(first.sourcePath().toString())` |
+| [SqlStatementDoc](SqlStatementDoc.md).ownerName | `first.ownerName()` |
+| [SqlStatementDoc](SqlStatementDoc.md).sourcePath | `first.sourcePath()` |
+| [MethodDoc](MethodDoc.md).parameters | `method.parameters()` |
+| [AnalysisResult](AnalysisResult.md).classes | `result.classes()` |
+| [AnalysisResult](AnalysisResult.md).configs | `result.configs()` |
+| [AnalysisResult](AnalysisResult.md).overview | `result.overview()` |
+| [AnalysisResult](AnalysisResult.md).sqlStatements | `result.sqlStatements()` |
+| [AnalysisResult](AnalysisResult.md).sqlStatements | `result.sqlStatements()` |
+| [AnalysisResult](AnalysisResult.md).tableUsages | `result.tableUsages()` |
+| [ClassDoc](ClassDoc.md).className | `classDoc.className()` |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `api(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `architecture(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classPage(classDoc, result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).configurations | `configurations(result.configs())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `impactMap(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `index(result.overview())` |
+| [MarkdownRenderer](MarkdownRenderer.md).mybatis | `mybatis(result.sqlStatements())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sql | `sql(result.sqlStatements())` |
+| [MarkdownRenderer](MarkdownRenderer.md).tables | `tables(result.tableUsages())` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(classesDirectory.resolve(classDoc.className() + ".md"), classPage(classDoc, result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(configsDirectory.resolve("application.md"), configurations(result.configs()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("_config.yml"), "title: CodeAtlas\ntheme: minima\n")` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("api.md"), api(result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("architecture.md"), architecture(result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("impact-map.md"), impactMap(result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("index.md"), index(result.overview()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("mybatis.md"), mybatis(result.sqlStatements()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("sql.md"), sql(result.sqlStatements()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).write | `write(output.resolve("tables.md"), tables(result.tableUsages()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(String.join(", ", statement.tableNames()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.ownerName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.sql())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(statement.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(usage.sourceName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(usage.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(usage.tableName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(usage.usageType())` |
+| [MarkdownRenderer](MarkdownRenderer.md).cell | `cell(usage.usedBy())` |
+| [ComponentType](ComponentType.md).name | `type.name()` |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `cell(endpoint.httpMethod())` |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `cell(endpoint.methodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `cell(endpoint.path())` |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `cell(endpoint.sourcePath())` |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `classLink(endpoint.className(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).api | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMapperStatementRelations | `cell(String.join(", ", relation.tableNames()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMapperStatementRelations | `cell(relation.mapperMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMapperStatementRelations | `cell(relation.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `cell(relation.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `cell(relation.sourceMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `cell(relation.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `classLink(relation.sourceClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `classLink(relation.targetClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallOverview | `sortedMethodCallRelations(result.methodCallRelations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `cell(relation.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `cell(relation.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `cell(relation.sourceMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `cell(relation.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `classLink(relation.sourceClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `classLink(relation.targetClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations().stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations().stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCalls | `cell(call.calledMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCalls | `cell(call.expression())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCalls | `cell(call.resolvedTargetClassName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCalls | `cell(call.scopeName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMethodCalls | `cell(call.sourceMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMyBatisStatements | `cell(String.join(", ", statement.tableNames()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMyBatisStatements | `cell(statement.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendMyBatisStatements | `cell(statement.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `cell(relation.sourceMemberName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `cell(relation.sourceMemberName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `classLink(relation.sourceClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `classLink(relation.targetClassName(), "", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `sortedRelations(relations.stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedClasses | `sortedRelations(relations.stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedTables | `cell(statement.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).appendRelatedTables | `cell(tableName)` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `appendMethodCallOverview(markdown, result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `cell(relation.sourceMemberName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `classLink(relation.sourceClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `classLink(relation.targetClassName(), "classes/", classNames)` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `sortedRelations(result.relations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).architecture | `title(type)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `cell(className)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classLink | `cell(className)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendCodeList(markdown, classDoc.annotations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendMapperStatementRelations(markdown, classDoc.className(), result.mapperStatementRelations())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendMethodCallRelations(markdown, classDoc.className(), result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendMethodCalls(markdown, classDoc.className(), result.methodCalls())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendMyBatisStatements(markdown, mapperStatements)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendRelatedClasses(markdown, classDoc.className(), result.relations(), classNames(result.classes()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `appendRelatedTables(markdown, mapperStatements)` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(String.join(", ", field.annotations()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(String.join(", ", method.annotations()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(field.name())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(field.type())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(method.methodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(method.returnType())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `cell(parameters(method))` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `classNames(result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `matchingMyBatisStatements(classDoc, result.sqlStatements())` |
+| [MarkdownRenderer](MarkdownRenderer.md).classPage | `parameters(method)` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `cell(row.api())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `cell(row.controller())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `cell(row.mapper())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `cell(row.service())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `cell(row.statement())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `cell(row.tables())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactMap | `impactRows(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `componentType(relation.targetClassName(), result.classes())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `isMapper(relation.targetClassName(), result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `methodName(endpoint.className(), endpoint.methodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `methodName(mapperCall.targetClassName(), mapperCall.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).impactRows | `methodName(serviceCall.targetClassName(), serviceCall.targetMethodName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).index | `displaySourceRoot(overview.sourceRoot())` |
+| [MarkdownRenderer](MarkdownRenderer.md).mybatis | `cell(first.ownerName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).mybatis | `cell(first.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `api(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `architecture(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `classPage(classDoc, result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `configurations(result.configs())` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `impactMap(result)` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `index(result.overview())` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `mybatis(result.sqlStatements())` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `sql(result.sqlStatements())` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `tables(result.tableUsages())` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(classesDirectory.resolve(classDoc.className() + ".md"), classPage(classDoc, result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(configsDirectory.resolve("application.md"), configurations(result.configs()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("_config.yml"), "title: CodeAtlas\ntheme: minima\n")` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("api.md"), api(result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("architecture.md"), architecture(result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("impact-map.md"), impactMap(result))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("index.md"), index(result.overview()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("mybatis.md"), mybatis(result.sqlStatements()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("sql.md"), sql(result.sqlStatements()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).render | `write(output.resolve("tables.md"), tables(result.tableUsages()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).sql | `cell(String.join(", ", statement.tableNames()))` |
+| [MarkdownRenderer](MarkdownRenderer.md).sql | `cell(statement.ownerName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sql | `cell(statement.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sql | `cell(statement.sql())` |
+| [MarkdownRenderer](MarkdownRenderer.md).sql | `cell(statement.statementId())` |
+| [MarkdownRenderer](MarkdownRenderer.md).tables | `cell(usage.sourceName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).tables | `cell(usage.sourcePath().toString())` |
+| [MarkdownRenderer](MarkdownRenderer.md).tables | `cell(usage.tableName())` |
+| [MarkdownRenderer](MarkdownRenderer.md).tables | `cell(usage.usageType())` |
+| [MarkdownRenderer](MarkdownRenderer.md).tables | `cell(usage.usedBy())` |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| api |  | cell | `cell(endpoint.httpMethod())` |
-| api |  | cell | `cell(endpoint.methodName())` |
-| api |  | cell | `cell(endpoint.path())` |
-| api |  | cell | `cell(endpoint.sourcePath())` |
-| api |  | classLink | `classLink(endpoint.className(), "classes/", classNames)` |
-| api |  | classNames | `classNames(result.classes())` |
-| api | endpoint | className | `endpoint.className()` |
-| api | endpoint | httpMethod | `endpoint.httpMethod()` |
-| api | endpoint | methodName | `endpoint.methodName()` |
-| api | endpoint | path | `endpoint.path()` |
-| api | endpoint | sourcePath | `endpoint.sourcePath()` |
-| api | endpoints | forEach | `endpoints.forEach(endpoint -> markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())).append(" \| `").append(cell(endpoint.sourcePath())).append("` \|\n"))` |
-| api | endpoints | isEmpty | `endpoints.isEmpty()` |
-| api | markdown | append | `markdown.append("\| ")` |
-| api | markdown.append("\| ") | append | `markdown.append("\| ").append(cell(endpoint.httpMethod()))` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())) | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `")` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `") | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path()))` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())) | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`')` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`') | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ")` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ") | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames))` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)) | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ")` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ") | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName()))` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())) | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())).append(" \| `")` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())).append(" \| `") | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())).append(" \| `").append(cell(endpoint.sourcePath()))` |
-| api | markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())).append(" \| `").append(cell(endpoint.sourcePath())) | append | `markdown.append("\| ").append(cell(endpoint.httpMethod())).append(" \| `").append(cell(endpoint.path())).append('`').append(" \| ").append(classLink(endpoint.className(), "classes/", classNames)).append(" \| ").append(cell(endpoint.methodName())).append(" \| `").append(cell(endpoint.sourcePath())).append("` \|\n")` |
-| api | markdown | append | `markdown.append("\| - \| - \| - \| - \| - \|\n")` |
-| api | markdown | toString | `markdown.toString()` |
-| api | result | classes | `result.classes()` |
-| api | result | endpoints | `result.endpoints()` |
-| appendCodeList | markdown | append | `markdown.append("* `")` |
-| appendCodeList | markdown.append("* `") | append | `markdown.append("* `").append(value)` |
-| appendCodeList | markdown.append("* `").append(value) | append | `markdown.append("* `").append(value).append("`\n")` |
-| appendCodeList | markdown | append | `markdown.append("None\n")` |
-| appendCodeList | values | forEach | `values.forEach(value -> markdown.append("* `").append(value).append("`\n"))` |
-| appendCodeList | values | isEmpty | `values.isEmpty()` |
-| appendMethodCalls | Comparator | comparing | `Comparator.comparing(MethodCallDoc::sourceMethodName)` |
-| appendMethodCalls | Comparator.comparing(MethodCallDoc::sourceMethodName) | thenComparing | `Comparator.comparing(MethodCallDoc::sourceMethodName).thenComparing(MethodCallDoc::expression)` |
-| appendMethodCalls | call | calledMethodName | `call.calledMethodName()` |
-| appendMethodCalls | call | expression | `call.expression()` |
-| appendMethodCalls | call | scopeName | `call.scopeName()` |
-| appendMethodCalls | call | sourceClassName | `call.sourceClassName()` |
-| appendMethodCalls | call.sourceClassName() | equals | `call.sourceClassName().equals(className)` |
-| appendMethodCalls | call | sourceMethodName | `call.sourceMethodName()` |
-| appendMethodCalls |  | cell | `cell(call.calledMethodName())` |
-| appendMethodCalls |  | cell | `cell(call.expression())` |
-| appendMethodCalls |  | cell | `cell(call.scopeName())` |
-| appendMethodCalls |  | cell | `cell(call.sourceMethodName())` |
-| appendMethodCalls | markdown | append | `markdown.append("\n## Method Calls\n\n")` |
-| appendMethodCalls | markdown.append("\n## Method Calls\n\n") | append | `markdown.append("\n## Method Calls\n\n").append("\| Source Method \| Scope \| Called Method \| Expression \|\n")` |
-| appendMethodCalls | markdown.append("\n## Method Calls\n\n").append("\| Source Method \| Scope \| Called Method \| Expression \|\n") | append | `markdown.append("\n## Method Calls\n\n").append("\| Source Method \| Scope \| Called Method \| Expression \|\n").append("\| --- \| --- \| --- \| --- \|\n")` |
-| appendMethodCalls | markdown | append | `markdown.append("\| ")` |
-| appendMethodCalls | markdown.append("\| ") | append | `markdown.append("\| ").append(cell(call.sourceMethodName()))` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())) | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ")` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ") | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName()))` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())) | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ")` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ") | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName()))` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())) | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())).append(" \| `")` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())).append(" \| `") | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())).append(" \| `").append(cell(call.expression()))` |
-| appendMethodCalls | markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())).append(" \| `").append(cell(call.expression())) | append | `markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())).append(" \| `").append(cell(call.expression())).append("` \|\n")` |
-| appendMethodCalls | markdown | append | `markdown.append("\| - \| - \| - \| - \|\n")` |
-| appendMethodCalls | matching | forEach | `matching.forEach(call -> markdown.append("\| ").append(cell(call.sourceMethodName())).append(" \| ").append(cell(call.scopeName())).append(" \| ").append(cell(call.calledMethodName())).append(" \| `").append(cell(call.expression())).append("` \|\n"))` |
-| appendMethodCalls | matching | isEmpty | `matching.isEmpty()` |
-| appendMethodCalls | methodCalls | stream | `methodCalls.stream()` |
-| appendMethodCalls | methodCalls.stream() | filter | `methodCalls.stream().filter(call -> call.sourceClassName().equals(className))` |
-| appendMethodCalls | methodCalls.stream().filter(call -> call.sourceClassName().equals(className)) | sorted | `methodCalls.stream().filter(call -> call.sourceClassName().equals(className)).sorted(Comparator.comparing(MethodCallDoc::sourceMethodName).thenComparing(MethodCallDoc::expression))` |
-| appendMethodCalls | methodCalls.stream().filter(call -> call.sourceClassName().equals(className)).sorted(Comparator.comparing(MethodCallDoc::sourceMethodName).thenComparing(MethodCallDoc::expression)) | toList | `methodCalls.stream().filter(call -> call.sourceClassName().equals(className)).sorted(Comparator.comparing(MethodCallDoc::sourceMethodName).thenComparing(MethodCallDoc::expression)).toList()` |
-| appendMyBatisStatements | String | join | `String.join(", ", statement.tableNames())` |
-| appendMyBatisStatements |  | cell | `cell(String.join(", ", statement.tableNames()))` |
-| appendMyBatisStatements |  | cell | `cell(statement.sourcePath().toString())` |
-| appendMyBatisStatements |  | cell | `cell(statement.statementId())` |
-| appendMyBatisStatements | markdown | append | `markdown.append("\n## MyBatis Statements\n\n")` |
-| appendMyBatisStatements | markdown.append("\n## MyBatis Statements\n\n") | append | `markdown.append("\n## MyBatis Statements\n\n").append("\| Type \| Statement ID \| Tables \| Source \|\n")` |
-| appendMyBatisStatements | markdown.append("\n## MyBatis Statements\n\n").append("\| Type \| Statement ID \| Tables \| Source \|\n") | append | `markdown.append("\n## MyBatis Statements\n\n").append("\| Type \| Statement ID \| Tables \| Source \|\n").append("\| --- \| --- \| --- \| --- \|\n")` |
-| appendMyBatisStatements | markdown | append | `markdown.append("\| ")` |
-| appendMyBatisStatements | markdown.append("\| ") | append | `markdown.append("\| ").append(statement.statementType())` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ")` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()).append(" \| ") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId()))` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ")` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames())))` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `")` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString()))` |
-| appendMyBatisStatements | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString())) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString())).append("` \|\n")` |
-| appendMyBatisStatements | statement | sourcePath | `statement.sourcePath()` |
-| appendMyBatisStatements | statement.sourcePath() | toString | `statement.sourcePath().toString()` |
-| appendMyBatisStatements | statement | statementId | `statement.statementId()` |
-| appendMyBatisStatements | statement | statementType | `statement.statementType()` |
-| appendMyBatisStatements | statement | tableNames | `statement.tableNames()` |
-| appendMyBatisStatements | statements | forEach | `statements.forEach(statement -> markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.statementId())).append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString())).append("` \|\n"))` |
-| appendMyBatisStatements | statements | isEmpty | `statements.isEmpty()` |
-| appendRelatedClasses |  | cell | `cell(relation.sourceMemberName())` |
-| appendRelatedClasses |  | cell | `cell(relation.sourceMemberName())` |
-| appendRelatedClasses |  | classLink | `classLink(relation.sourceClassName(), "", classNames)` |
-| appendRelatedClasses |  | classLink | `classLink(relation.targetClassName(), "", classNames)` |
-| appendRelatedClasses | incoming | forEach | `incoming.forEach(relation -> markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())).append(" \|\n"))` |
-| appendRelatedClasses | incoming | isEmpty | `incoming.isEmpty()` |
-| appendRelatedClasses | markdown | append | `markdown.append("\n## Related Classes\n\n")` |
-| appendRelatedClasses | markdown.append("\n## Related Classes\n\n") | append | `markdown.append("\n## Related Classes\n\n").append("### Outgoing References\n\n")` |
-| appendRelatedClasses | markdown.append("\n## Related Classes\n\n").append("### Outgoing References\n\n") | append | `markdown.append("\n## Related Classes\n\n").append("### Outgoing References\n\n").append("\| Target \| Relation \| Member \|\n")` |
-| appendRelatedClasses | markdown.append("\n## Related Classes\n\n").append("### Outgoing References\n\n").append("\| Target \| Relation \| Member \|\n") | append | `markdown.append("\n## Related Classes\n\n").append("### Outgoing References\n\n").append("\| Target \| Relation \| Member \|\n").append("\| --- \| --- \| --- \|\n")` |
-| appendRelatedClasses | markdown | append | `markdown.append("\n### Incoming References\n\n")` |
-| appendRelatedClasses | markdown.append("\n### Incoming References\n\n") | append | `markdown.append("\n### Incoming References\n\n").append("\| Source \| Relation \| Member \|\n")` |
-| appendRelatedClasses | markdown.append("\n### Incoming References\n\n").append("\| Source \| Relation \| Member \|\n") | append | `markdown.append("\n### Incoming References\n\n").append("\| Source \| Relation \| Member \|\n").append("\| --- \| --- \| --- \|\n")` |
-| appendRelatedClasses | markdown | append | `markdown.append("\| ")` |
-| appendRelatedClasses | markdown | append | `markdown.append("\| ")` |
-| appendRelatedClasses | markdown.append("\| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames))` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ")` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType())` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ")` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName()))` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())).append(" \|\n")` |
-| appendRelatedClasses | markdown.append("\| ") | append | `markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames))` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)) | append | `markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ")` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType())` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()) | append | `markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ")` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName()))` |
-| appendRelatedClasses | markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())) | append | `markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())).append(" \|\n")` |
-| appendRelatedClasses | markdown | append | `markdown.append("\| - \| - \| - \|\n")` |
-| appendRelatedClasses | markdown | append | `markdown.append("\| - \| - \| - \|\n")` |
-| appendRelatedClasses | outgoing | forEach | `outgoing.forEach(relation -> markdown.append("\| ").append(classLink(relation.targetClassName(), "", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())).append(" \|\n"))` |
-| appendRelatedClasses | outgoing | isEmpty | `outgoing.isEmpty()` |
-| appendRelatedClasses | relation | relationType | `relation.relationType()` |
-| appendRelatedClasses | relation | relationType | `relation.relationType()` |
-| appendRelatedClasses | relation | sourceClassName | `relation.sourceClassName()` |
-| appendRelatedClasses | relation | sourceClassName | `relation.sourceClassName()` |
-| appendRelatedClasses | relation.sourceClassName() | equals | `relation.sourceClassName().equals(className)` |
-| appendRelatedClasses | relation | sourceMemberName | `relation.sourceMemberName()` |
-| appendRelatedClasses | relation | sourceMemberName | `relation.sourceMemberName()` |
-| appendRelatedClasses | relation | targetClassName | `relation.targetClassName()` |
-| appendRelatedClasses | relation | targetClassName | `relation.targetClassName()` |
-| appendRelatedClasses | relation.targetClassName() | equals | `relation.targetClassName().equals(className)` |
-| appendRelatedClasses | relations | stream | `relations.stream()` |
-| appendRelatedClasses | relations | stream | `relations.stream()` |
-| appendRelatedClasses | relations.stream() | filter | `relations.stream().filter(relation -> relation.sourceClassName().equals(className))` |
-| appendRelatedClasses | relations.stream().filter(relation -> relation.sourceClassName().equals(className)) | toList | `relations.stream().filter(relation -> relation.sourceClassName().equals(className)).toList()` |
-| appendRelatedClasses | relations.stream() | filter | `relations.stream().filter(relation -> relation.targetClassName().equals(className))` |
-| appendRelatedClasses | relations.stream().filter(relation -> relation.targetClassName().equals(className)) | toList | `relations.stream().filter(relation -> relation.targetClassName().equals(className)).toList()` |
-| appendRelatedClasses |  | sortedRelations | `sortedRelations(relations.stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
-| appendRelatedClasses |  | sortedRelations | `sortedRelations(relations.stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
-| appendRelatedTables |  | cell | `cell(statement.statementId())` |
-| appendRelatedTables |  | cell | `cell(tableName)` |
-| appendRelatedTables | markdown | append | `markdown.append("\n## Related Tables\n\n")` |
-| appendRelatedTables | markdown.append("\n## Related Tables\n\n") | append | `markdown.append("\n## Related Tables\n\n").append("\| Table \| Statement \| Usage \|\n")` |
-| appendRelatedTables | markdown.append("\n## Related Tables\n\n").append("\| Table \| Statement \| Usage \|\n") | append | `markdown.append("\n## Related Tables\n\n").append("\| Table \| Statement \| Usage \|\n").append("\| --- \| --- \| --- \|\n")` |
-| appendRelatedTables | markdown | append | `markdown.append("\| - \| - \| - \|\n")` |
-| appendRelatedTables | markdown | append | `markdown.append(row)` |
-| appendRelatedTables | markdown.append(row) | append | `markdown.append(row).append('\n')` |
-| appendRelatedTables | rows | forEach | `rows.forEach(row -> markdown.append(row).append('\n'))` |
-| appendRelatedTables | rows | isEmpty | `rows.isEmpty()` |
-| appendRelatedTables | statement | statementId | `statement.statementId()` |
-| appendRelatedTables | statement | statementType | `statement.statementType()` |
-| appendRelatedTables | statement | tableNames | `statement.tableNames()` |
-| appendRelatedTables | statement.tableNames() | stream | `statement.tableNames().stream()` |
-| appendRelatedTables | statement.tableNames().stream() | map | `statement.tableNames().stream().map(tableName -> "\| " + cell(tableName) + " \| " + cell(statement.statementId()) + " \| " + statement.statementType() + " \|")` |
-| appendRelatedTables | statements | isEmpty | `statements.isEmpty()` |
-| appendRelatedTables | statements | stream | `statements.stream()` |
-| appendRelatedTables | statements.stream() | flatMap | `statements.stream().flatMap(statement -> statement.tableNames().stream().map(tableName -> "\| " + cell(tableName) + " \| " + cell(statement.statementId()) + " \| " + statement.statementType() + " \|"))` |
-| appendRelatedTables | statements.stream().flatMap(statement -> statement.tableNames().stream().map(tableName -> "\| " + cell(tableName) + " \| " + cell(statement.statementId()) + " \| " + statement.statementType() + " \|")) | sorted | `statements.stream().flatMap(statement -> statement.tableNames().stream().map(tableName -> "\| " + cell(tableName) + " \| " + cell(statement.statementId()) + " \| " + statement.statementType() + " \|")).sorted()` |
-| appendRelatedTables | statements.stream().flatMap(statement -> statement.tableNames().stream().map(tableName -> "\| " + cell(tableName) + " \| " + cell(statement.statementId()) + " \| " + statement.statementType() + " \|")).sorted() | toList | `statements.stream().flatMap(statement -> statement.tableNames().stream().map(tableName -> "\| " + cell(tableName) + " \| " + cell(statement.statementId()) + " \| " + statement.statementType() + " \|")).sorted().toList()` |
-| architecture | Comparator | comparing | `Comparator.comparing(ClassDoc::className)` |
-| architecture | ComponentType | values | `ComponentType.values()` |
-| architecture |  | cell | `cell(relation.sourceMemberName())` |
-| architecture | classDoc | className | `classDoc.className()` |
-| architecture | classDoc | className | `classDoc.className()` |
-| architecture | classDoc | componentType | `classDoc.componentType()` |
-| architecture |  | classLink | `classLink(relation.sourceClassName(), "classes/", classNames)` |
-| architecture |  | classLink | `classLink(relation.targetClassName(), "classes/", classNames)` |
-| architecture |  | classNames | `classNames(result.classes())` |
-| architecture | markdown | append | `markdown.append("## ")` |
-| architecture | markdown.append("## ") | append | `markdown.append("## ").append(title(type))` |
-| architecture | markdown.append("## ").append(title(type)) | append | `markdown.append("## ").append(title(type)).append("\n\n")` |
-| architecture | markdown | append | `markdown.append("## Dependency Overview\n\n")` |
-| architecture | markdown.append("## Dependency Overview\n\n") | append | `markdown.append("## Dependency Overview\n\n").append("\| Source \| Target \| Relation \| Member \|\n")` |
-| architecture | markdown.append("## Dependency Overview\n\n").append("\| Source \| Target \| Relation \| Member \|\n") | append | `markdown.append("## Dependency Overview\n\n").append("\| Source \| Target \| Relation \| Member \|\n").append("\| --- \| --- \| --- \| --- \|\n")` |
-| architecture | markdown | append | `markdown.append("* [")` |
-| architecture | markdown.append("* [") | append | `markdown.append("* [").append(classDoc.className())` |
-| architecture | markdown.append("* [").append(classDoc.className()) | append | `markdown.append("* [").append(classDoc.className()).append("](classes/")` |
-| architecture | markdown.append("* [").append(classDoc.className()).append("](classes/") | append | `markdown.append("* [").append(classDoc.className()).append("](classes/").append(classDoc.className())` |
-| architecture | markdown.append("* [").append(classDoc.className()).append("](classes/").append(classDoc.className()) | append | `markdown.append("* [").append(classDoc.className()).append("](classes/").append(classDoc.className()).append(".md)\n")` |
-| architecture | markdown | append | `markdown.append("None\n\n")` |
-| architecture | markdown | append | `markdown.append("\| ")` |
-| architecture | markdown.append("\| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames))` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ")` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames))` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ")` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType())` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()).append(" \| ")` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()).append(" \| ") | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName()))` |
-| architecture | markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())) | append | `markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())).append(" \|\n")` |
-| architecture | markdown | append | `markdown.append("\| - \| - \| - \| - \|\n")` |
-| architecture | markdown | append | `markdown.append('\n')` |
-| architecture | markdown | toString | `markdown.toString()` |
-| architecture | matching | forEach | `matching.forEach(classDoc -> markdown.append("* [").append(classDoc.className()).append("](classes/").append(classDoc.className()).append(".md)\n"))` |
-| architecture | matching | isEmpty | `matching.isEmpty()` |
-| architecture | relation | relationType | `relation.relationType()` |
-| architecture | relation | sourceClassName | `relation.sourceClassName()` |
-| architecture | relation | sourceMemberName | `relation.sourceMemberName()` |
-| architecture | relation | targetClassName | `relation.targetClassName()` |
-| architecture | relations | forEach | `relations.forEach(relation -> markdown.append("\| ").append(classLink(relation.sourceClassName(), "classes/", classNames)).append(" \| ").append(classLink(relation.targetClassName(), "classes/", classNames)).append(" \| ").append(relation.relationType()).append(" \| ").append(cell(relation.sourceMemberName())).append(" \|\n"))` |
-| architecture | relations | isEmpty | `relations.isEmpty()` |
-| architecture | result | classes | `result.classes()` |
-| architecture | result | classes | `result.classes()` |
-| architecture | result.classes() | stream | `result.classes().stream()` |
-| architecture | result.classes().stream() | filter | `result.classes().stream().filter(classDoc -> classDoc.componentType() == type)` |
-| architecture | result.classes().stream().filter(classDoc -> classDoc.componentType() == type) | sorted | `result.classes().stream().filter(classDoc -> classDoc.componentType() == type).sorted(Comparator.comparing(ClassDoc::className))` |
-| architecture | result.classes().stream().filter(classDoc -> classDoc.componentType() == type).sorted(Comparator.comparing(ClassDoc::className)) | toList | `result.classes().stream().filter(classDoc -> classDoc.componentType() == type).sorted(Comparator.comparing(ClassDoc::className)).toList()` |
-| architecture | result | relations | `result.relations()` |
-| architecture |  | sortedRelations | `sortedRelations(result.relations())` |
-| architecture |  | title | `title(type)` |
-| cell | value | replace | `value.replace("\|", "\\\|")` |
-| cell | value.replace("\|", "\\\|") | replace | `value.replace("\|", "\\\|").replace("\n", " ")` |
-| classLink |  | cell | `cell(className)` |
-| classLink |  | cell | `cell(className)` |
-| classLink | classNames | contains | `classNames.contains(className)` |
-| classNames | Collectors | toSet | `Collectors.toSet()` |
-| classNames | classes | stream | `classes.stream()` |
-| classNames | classes.stream() | map | `classes.stream().map(ClassDoc::className)` |
-| classNames | classes.stream().map(ClassDoc::className) | collect | `classes.stream().map(ClassDoc::className).collect(Collectors.toSet())` |
-| classPage | String | join | `String.join(", ", field.annotations())` |
-| classPage | String | join | `String.join(", ", method.annotations())` |
-| classPage |  | appendCodeList | `appendCodeList(markdown, classDoc.annotations())` |
-| classPage |  | appendMethodCalls | `appendMethodCalls(markdown, classDoc.className(), result.methodCalls())` |
-| classPage |  | appendMyBatisStatements | `appendMyBatisStatements(markdown, mapperStatements)` |
-| classPage |  | appendRelatedClasses | `appendRelatedClasses(markdown, classDoc.className(), result.relations(), classNames(result.classes()))` |
-| classPage |  | appendRelatedTables | `appendRelatedTables(markdown, mapperStatements)` |
-| classPage |  | cell | `cell(String.join(", ", field.annotations()))` |
-| classPage |  | cell | `cell(String.join(", ", method.annotations()))` |
-| classPage |  | cell | `cell(field.name())` |
-| classPage |  | cell | `cell(field.type())` |
-| classPage |  | cell | `cell(method.methodName())` |
-| classPage |  | cell | `cell(method.returnType())` |
-| classPage |  | cell | `cell(parameters(method))` |
-| classPage | classDoc | annotations | `classDoc.annotations()` |
-| classPage | classDoc | className | `classDoc.className()` |
-| classPage | classDoc | className | `classDoc.className()` |
-| classPage | classDoc | className | `classDoc.className()` |
-| classPage | classDoc | componentType | `classDoc.componentType()` |
-| classPage | classDoc | declarationKind | `classDoc.declarationKind()` |
-| classPage | classDoc | fields | `classDoc.fields()` |
-| classPage | classDoc | fields | `classDoc.fields()` |
-| classPage | classDoc.fields() | forEach | `classDoc.fields().forEach(field -> markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`').append(" \| ").append(cell(String.join(", ", field.annotations()))).append(" \|\n"))` |
-| classPage | classDoc.fields() | isEmpty | `classDoc.fields().isEmpty()` |
-| classPage | classDoc | methods | `classDoc.methods()` |
-| classPage | classDoc | methods | `classDoc.methods()` |
-| classPage | classDoc.methods() | forEach | `classDoc.methods().forEach(method -> markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))).append(" \| ").append(cell(String.join(", ", method.annotations()))).append(" \|\n"))` |
-| classPage | classDoc.methods() | isEmpty | `classDoc.methods().isEmpty()` |
-| classPage | classDoc | packageName | `classDoc.packageName()` |
-| classPage | classDoc | roleSummary | `classDoc.roleSummary()` |
-| classPage | classDoc | sourcePath | `classDoc.sourcePath()` |
-| classPage |  | classNames | `classNames(result.classes())` |
-| classPage | field | annotations | `field.annotations()` |
-| classPage | field | name | `field.name()` |
-| classPage | field | type | `field.type()` |
-| classPage | markdown | append | `markdown.append("\n## Fields\n\n")` |
-| classPage | markdown.append("\n## Fields\n\n") | append | `markdown.append("\n## Fields\n\n").append("\| Name \| Type \| Annotations \|\n")` |
-| classPage | markdown.append("\n## Fields\n\n").append("\| Name \| Type \| Annotations \|\n") | append | `markdown.append("\n## Fields\n\n").append("\| Name \| Type \| Annotations \|\n").append("\| --- \| --- \| --- \|\n")` |
-| classPage | markdown | append | `markdown.append("\n## Methods\n\n")` |
-| classPage | markdown.append("\n## Methods\n\n") | append | `markdown.append("\n## Methods\n\n").append("\| Method \| Return Type \| Parameters \| Annotations \|\n")` |
-| classPage | markdown.append("\n## Methods\n\n").append("\| Method \| Return Type \| Parameters \| Annotations \|\n") | append | `markdown.append("\n## Methods\n\n").append("\| Method \| Return Type \| Parameters \| Annotations \|\n").append("\| --- \| --- \| --- \| --- \|\n")` |
-| classPage | markdown | append | `markdown.append("\| ")` |
-| classPage | markdown | append | `markdown.append("\| ")` |
-| classPage | markdown.append("\| ") | append | `markdown.append("\| ").append(cell(field.name()))` |
-| classPage | markdown.append("\| ").append(cell(field.name())) | append | `markdown.append("\| ").append(cell(field.name())).append(" \| `")` |
-| classPage | markdown.append("\| ").append(cell(field.name())).append(" \| `") | append | `markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type()))` |
-| classPage | markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())) | append | `markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`')` |
-| classPage | markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`') | append | `markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`').append(" \| ")` |
-| classPage | markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`').append(" \| ") | append | `markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`').append(" \| ").append(cell(String.join(", ", field.annotations())))` |
-| classPage | markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`').append(" \| ").append(cell(String.join(", ", field.annotations()))) | append | `markdown.append("\| ").append(cell(field.name())).append(" \| `").append(cell(field.type())).append('`').append(" \| ").append(cell(String.join(", ", field.annotations()))).append(" \|\n")` |
-| classPage | markdown.append("\| ") | append | `markdown.append("\| ").append(cell(method.methodName()))` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())) | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `")` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `") | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType()))` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())) | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`')` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`') | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ")` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ") | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method)))` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))) | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))).append(" \| ")` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))).append(" \| ") | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))).append(" \| ").append(cell(String.join(", ", method.annotations())))` |
-| classPage | markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))).append(" \| ").append(cell(String.join(", ", method.annotations()))) | append | `markdown.append("\| ").append(cell(method.methodName())).append(" \| `").append(cell(method.returnType())).append('`').append(" \| ").append(cell(parameters(method))).append(" \| ").append(cell(String.join(", ", method.annotations()))).append(" \|\n")` |
-| classPage | markdown | append | `markdown.append("\| - \| - \| - \| - \|\n")` |
-| classPage | markdown | append | `markdown.append("\| - \| - \| - \|\n")` |
-| classPage | markdown | toString | `markdown.toString()` |
-| classPage |  | matchingMyBatisStatements | `matchingMyBatisStatements(classDoc, result.sqlStatements())` |
-| classPage | method | annotations | `method.annotations()` |
-| classPage | method | methodName | `method.methodName()` |
-| classPage | method | returnType | `method.returnType()` |
-| classPage | new StringBuilder() | append | `new StringBuilder().append("# ")` |
-| classPage | new StringBuilder().append("# ") | append | `new StringBuilder().append("# ").append(classDoc.className())` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()) | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName())` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()) | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind())` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()) | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType())` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()) | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath())` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()) | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n").append(classDoc.roleSummary())` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n").append(classDoc.roleSummary()) | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n").append(classDoc.roleSummary()).append("\n\n")` |
-| classPage | new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n").append(classDoc.roleSummary()).append("\n\n") | append | `new StringBuilder().append("# ").append(classDoc.className()).append("\n\n").append("## Summary\n\n").append("* Package: `").append(classDoc.packageName()).append("`\n").append("* Declaration: `").append(classDoc.declarationKind()).append("`\n").append("* Type: `").append(classDoc.componentType()).append("`\n").append("* Source: `").append(classDoc.sourcePath()).append("`\n\n").append("## Role\n\n").append(classDoc.roleSummary()).append("\n\n").append("## Annotations\n\n")` |
-| classPage |  | parameters | `parameters(method)` |
-| classPage | result | classes | `result.classes()` |
-| classPage | result | methodCalls | `result.methodCalls()` |
-| classPage | result | relations | `result.relations()` |
-| classPage | result | sqlStatements | `result.sqlStatements()` |
-| configurations | Comparator | comparing | `Comparator.comparing(config -> config.sourcePath().toString())` |
-| configurations | config | sourcePath | `config.sourcePath()` |
-| configurations | config | sourcePath | `config.sourcePath()` |
-| configurations | config.sourcePath() | toString | `config.sourcePath().toString()` |
-| configurations | configs | isEmpty | `configs.isEmpty()` |
-| configurations | configs | stream | `configs.stream()` |
-| configurations | configs.stream() | sorted | `configs.stream().sorted(Comparator.comparing(config -> config.sourcePath().toString()))` |
-| configurations | configs.stream().sorted(Comparator.comparing(config -> config.sourcePath().toString())) | forEach | `configs.stream().sorted(Comparator.comparing(config -> config.sourcePath().toString())).forEach(config -> markdown.append("* `").append(config.sourcePath()).append("`\n"))` |
-| configurations | markdown | append | `markdown.append("* `")` |
-| configurations | markdown.append("* `") | append | `markdown.append("* `").append(config.sourcePath())` |
-| configurations | markdown.append("* `").append(config.sourcePath()) | append | `markdown.append("* `").append(config.sourcePath()).append("`\n")` |
-| configurations | markdown | append | `markdown.append("None\n")` |
-| configurations | markdown | toString | `markdown.toString()` |
-| displaySourceRoot | Path | of | `Path.of("")` |
-| displaySourceRoot | Path.of("") | toAbsolutePath | `Path.of("").toAbsolutePath()` |
-| displaySourceRoot | Path.of("").toAbsolutePath() | normalize | `Path.of("").toAbsolutePath().normalize()` |
-| displaySourceRoot | normalizedSourceRoot | startsWith | `normalizedSourceRoot.startsWith(workingDirectory)` |
-| displaySourceRoot | normalizedSourceRoot | toString | `normalizedSourceRoot.toString()` |
-| displaySourceRoot | relativeSourceRoot | toString | `relativeSourceRoot.toString()` |
-| displaySourceRoot | relativeSourceRoot.toString() | isEmpty | `relativeSourceRoot.toString().isEmpty()` |
-| displaySourceRoot | sourceRoot | toAbsolutePath | `sourceRoot.toAbsolutePath()` |
-| displaySourceRoot | sourceRoot.toAbsolutePath() | normalize | `sourceRoot.toAbsolutePath().normalize()` |
-| displaySourceRoot | workingDirectory | getFileName | `workingDirectory.getFileName()` |
-| displaySourceRoot | workingDirectory.getFileName() | toString | `workingDirectory.getFileName().toString()` |
-| displaySourceRoot | workingDirectory | relativize | `workingDirectory.relativize(normalizedSourceRoot)` |
-| index | """     # CodeAtlas          ## Project Overview          * Project: `%s`     * Source: `%s`     * Classes: %d     * API Endpoints: %d     * Controllers: %d     * Services: %d     * Repositories: %d     * Entities: %d          ## Documents          * [Architecture](architecture.md)     * [API](api.md)     * [SQL Statements](sql.md)     * [Tables](tables.md)     * [MyBatis Mappers](mybatis.md)     * [Classes](classes/)     * [Configurations](configs/application.md)     """ | formatted | `"""     # CodeAtlas          ## Project Overview          * Project: `%s`     * Source: `%s`     * Classes: %d     * API Endpoints: %d     * Controllers: %d     * Services: %d     * Repositories: %d     * Entities: %d          ## Documents          * [Architecture](architecture.md)     * [API](api.md)     * [SQL Statements](sql.md)     * [Tables](tables.md)     * [MyBatis Mappers](mybatis.md)     * [Classes](classes/)     * [Configurations](configs/application.md)     """.formatted(overview.projectName(), displaySourceRoot(overview.sourceRoot()), overview.classCount(), overview.endpointCount(), overview.controllerCount(), overview.serviceCount(), overview.repositoryCount(), overview.entityCount())` |
-| index |  | displaySourceRoot | `displaySourceRoot(overview.sourceRoot())` |
-| index | overview | classCount | `overview.classCount()` |
-| index | overview | controllerCount | `overview.controllerCount()` |
-| index | overview | endpointCount | `overview.endpointCount()` |
-| index | overview | entityCount | `overview.entityCount()` |
-| index | overview | projectName | `overview.projectName()` |
-| index | overview | repositoryCount | `overview.repositoryCount()` |
-| index | overview | serviceCount | `overview.serviceCount()` |
-| index | overview | sourceRoot | `overview.sourceRoot()` |
-| matchingMyBatisStatements | Comparator | comparing | `Comparator.comparing(SqlStatementDoc::statementId)` |
-| matchingMyBatisStatements | classDoc | className | `classDoc.className()` |
-| matchingMyBatisStatements | classDoc | className | `classDoc.className()` |
-| matchingMyBatisStatements | classDoc | packageName | `classDoc.packageName()` |
-| matchingMyBatisStatements | classDoc | packageName | `classDoc.packageName()` |
-| matchingMyBatisStatements | classDoc.packageName() | isEmpty | `classDoc.packageName().isEmpty()` |
-| matchingMyBatisStatements | statement | ownerName | `statement.ownerName()` |
-| matchingMyBatisStatements | statement.ownerName() | equals | `statement.ownerName().equals(qualifiedName)` |
-| matchingMyBatisStatements | statements | stream | `statements.stream()` |
-| matchingMyBatisStatements | statements.stream() | filter | `statements.stream().filter(statement -> statement.ownerName().equals(qualifiedName))` |
-| matchingMyBatisStatements | statements.stream().filter(statement -> statement.ownerName().equals(qualifiedName)) | sorted | `statements.stream().filter(statement -> statement.ownerName().equals(qualifiedName)).sorted(Comparator.comparing(SqlStatementDoc::statementId))` |
-| matchingMyBatisStatements | statements.stream().filter(statement -> statement.ownerName().equals(qualifiedName)).sorted(Comparator.comparing(SqlStatementDoc::statementId)) | toList | `statements.stream().filter(statement -> statement.ownerName().equals(qualifiedName)).sorted(Comparator.comparing(SqlStatementDoc::statementId)).toList()` |
-| mybatis | Collectors | groupingBy | `Collectors.groupingBy(statement -> statement.ownerName() + "\n" + statement.sourcePath(), LinkedHashMap::new, Collectors.toList())` |
-| mybatis | Collectors | toList | `Collectors.toList()` |
-| mybatis | Map.Entry | comparingByKey | `Map.Entry.comparingByKey()` |
-| mybatis | byMapper | entrySet | `byMapper.entrySet()` |
-| mybatis | byMapper.entrySet() | stream | `byMapper.entrySet().stream()` |
-| mybatis | byMapper.entrySet().stream() | sorted | `byMapper.entrySet().stream().sorted(Map.Entry.comparingByKey())` |
-| mybatis | byMapper.entrySet().stream().sorted(Map.Entry.comparingByKey()) | forEach | `byMapper.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {     List<SqlStatementDoc> mapperStatements = entry.getValue();     SqlStatementDoc first = mapperStatements.getFirst();     markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())).append("` \| ").append(mapperStatements.size()).append(" \|\n"); })` |
-| mybatis | byMapper | isEmpty | `byMapper.isEmpty()` |
-| mybatis |  | cell | `cell(first.ownerName())` |
-| mybatis |  | cell | `cell(first.sourcePath().toString())` |
-| mybatis | entry | getValue | `entry.getValue()` |
-| mybatis | first | ownerName | `first.ownerName()` |
-| mybatis | first | sourcePath | `first.sourcePath()` |
-| mybatis | first.sourcePath() | toString | `first.sourcePath().toString()` |
-| mybatis | mapperStatements | getFirst | `mapperStatements.getFirst()` |
-| mybatis | mapperStatements | size | `mapperStatements.size()` |
-| mybatis | markdown | append | `markdown.append("\| ")` |
-| mybatis | markdown.append("\| ") | append | `markdown.append("\| ").append(cell(first.ownerName()))` |
-| mybatis | markdown.append("\| ").append(cell(first.ownerName())) | append | `markdown.append("\| ").append(cell(first.ownerName())).append(" \| `")` |
-| mybatis | markdown.append("\| ").append(cell(first.ownerName())).append(" \| `") | append | `markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString()))` |
-| mybatis | markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())) | append | `markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())).append("` \| ")` |
-| mybatis | markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())).append("` \| ") | append | `markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())).append("` \| ").append(mapperStatements.size())` |
-| mybatis | markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())).append("` \| ").append(mapperStatements.size()) | append | `markdown.append("\| ").append(cell(first.ownerName())).append(" \| `").append(cell(first.sourcePath().toString())).append("` \| ").append(mapperStatements.size()).append(" \|\n")` |
-| mybatis | markdown | append | `markdown.append("\| - \| - \| - \|\n")` |
-| mybatis | markdown | toString | `markdown.toString()` |
-| mybatis | statement | ownerName | `statement.ownerName()` |
-| mybatis | statement | sourcePath | `statement.sourcePath()` |
-| mybatis | statements | stream | `statements.stream()` |
-| mybatis | statements.stream() | collect | `statements.stream().collect(Collectors.groupingBy(statement -> statement.ownerName() + "\n" + statement.sourcePath(), LinkedHashMap::new, Collectors.toList()))` |
-| parameters | Collectors | joining | `Collectors.joining(", ")` |
-| parameters | method | parameters | `method.parameters()` |
-| parameters | method.parameters() | stream | `method.parameters().stream()` |
-| parameters | method.parameters().stream() | map | `method.parameters().stream().map(parameter -> parameter.type() + " " + parameter.name())` |
-| parameters | method.parameters().stream().map(parameter -> parameter.type() + " " + parameter.name()) | collect | `method.parameters().stream().map(parameter -> parameter.type() + " " + parameter.name()).collect(Collectors.joining(", "))` |
-| parameters | parameter | name | `parameter.name()` |
-| parameters | parameter | type | `parameter.type()` |
-| render | Files | createDirectories | `Files.createDirectories(classesDirectory)` |
-| render | Files | createDirectories | `Files.createDirectories(configsDirectory)` |
-| render |  | api | `api(result)` |
-| render |  | architecture | `architecture(result)` |
-| render | classDoc | className | `classDoc.className()` |
-| render |  | classPage | `classPage(classDoc, result)` |
-| render | classesDirectory | resolve | `classesDirectory.resolve(classDoc.className() + ".md")` |
-| render | configsDirectory | resolve | `configsDirectory.resolve("application.md")` |
-| render |  | configurations | `configurations(result.configs())` |
-| render |  | index | `index(result.overview())` |
-| render |  | mybatis | `mybatis(result.sqlStatements())` |
-| render | output | resolve | `output.resolve("_config.yml")` |
-| render | output | resolve | `output.resolve("api.md")` |
-| render | output | resolve | `output.resolve("architecture.md")` |
-| render | output | resolve | `output.resolve("classes")` |
-| render | output | resolve | `output.resolve("configs")` |
-| render | output | resolve | `output.resolve("index.md")` |
-| render | output | resolve | `output.resolve("mybatis.md")` |
-| render | output | resolve | `output.resolve("sql.md")` |
-| render | output | resolve | `output.resolve("tables.md")` |
-| render | outputDirectory | toAbsolutePath | `outputDirectory.toAbsolutePath()` |
-| render | outputDirectory.toAbsolutePath() | normalize | `outputDirectory.toAbsolutePath().normalize()` |
-| render | result | classes | `result.classes()` |
-| render | result | configs | `result.configs()` |
-| render | result | overview | `result.overview()` |
-| render | result | sqlStatements | `result.sqlStatements()` |
-| render | result | sqlStatements | `result.sqlStatements()` |
-| render | result | tableUsages | `result.tableUsages()` |
-| render |  | sql | `sql(result.sqlStatements())` |
-| render |  | tables | `tables(result.tableUsages())` |
-| render |  | write | `write(classesDirectory.resolve(classDoc.className() + ".md"), classPage(classDoc, result))` |
-| render |  | write | `write(configsDirectory.resolve("application.md"), configurations(result.configs()))` |
-| render |  | write | `write(output.resolve("_config.yml"), "title: CodeAtlas\ntheme: minima\n")` |
-| render |  | write | `write(output.resolve("api.md"), api(result))` |
-| render |  | write | `write(output.resolve("architecture.md"), architecture(result))` |
-| render |  | write | `write(output.resolve("index.md"), index(result.overview()))` |
-| render |  | write | `write(output.resolve("mybatis.md"), mybatis(result.sqlStatements()))` |
-| render |  | write | `write(output.resolve("sql.md"), sql(result.sqlStatements()))` |
-| render |  | write | `write(output.resolve("tables.md"), tables(result.tableUsages()))` |
-| sortedRelations | relations | stream | `relations.stream()` |
-| sortedRelations | relations.stream() | sorted | `relations.stream().sorted(RELATION_ORDER)` |
-| sortedRelations | relations.stream().sorted(RELATION_ORDER) | toList | `relations.stream().sorted(RELATION_ORDER).toList()` |
-| sql | Comparator | comparing | `Comparator.comparing(SqlStatementDoc::ownerName)` |
-| sql | Comparator.comparing(SqlStatementDoc::ownerName) | thenComparing | `Comparator.comparing(SqlStatementDoc::ownerName).thenComparing(SqlStatementDoc::statementId)` |
-| sql | String | join | `String.join(", ", statement.tableNames())` |
-| sql |  | cell | `cell(String.join(", ", statement.tableNames()))` |
-| sql |  | cell | `cell(statement.ownerName())` |
-| sql |  | cell | `cell(statement.sourcePath().toString())` |
-| sql |  | cell | `cell(statement.sql())` |
-| sql |  | cell | `cell(statement.statementId())` |
-| sql | markdown | append | `markdown.append("\| ")` |
-| sql | markdown.append("\| ") | append | `markdown.append("\| ").append(statement.statementType())` |
-| sql | markdown.append("\| ").append(statement.statementType()) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ")` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName()))` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ")` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId()))` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `")` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql()))` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`')` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`') | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ")` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames())))` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `")` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `") | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString()))` |
-| sql | markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString())) | append | `markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString())).append("` \|\n")` |
-| sql | markdown | append | `markdown.append("\| - \| - \| - \| - \| - \| - \|\n")` |
-| sql | markdown | toString | `markdown.toString()` |
-| sql | statement | ownerName | `statement.ownerName()` |
-| sql | statement | sourcePath | `statement.sourcePath()` |
-| sql | statement.sourcePath() | toString | `statement.sourcePath().toString()` |
-| sql | statement | sql | `statement.sql()` |
-| sql | statement | statementId | `statement.statementId()` |
-| sql | statement | statementType | `statement.statementType()` |
-| sql | statement | tableNames | `statement.tableNames()` |
-| sql | statements | isEmpty | `statements.isEmpty()` |
-| sql | statements | stream | `statements.stream()` |
-| sql | statements.stream() | sorted | `statements.stream().sorted(Comparator.comparing(SqlStatementDoc::ownerName).thenComparing(SqlStatementDoc::statementId))` |
-| sql | statements.stream().sorted(Comparator.comparing(SqlStatementDoc::ownerName).thenComparing(SqlStatementDoc::statementId)) | forEach | `statements.stream().sorted(Comparator.comparing(SqlStatementDoc::ownerName).thenComparing(SqlStatementDoc::statementId)).forEach(statement -> markdown.append("\| ").append(statement.statementType()).append(" \| ").append(cell(statement.ownerName())).append(" \| ").append(cell(statement.statementId())).append(" \| `").append(cell(statement.sql())).append('`').append(" \| ").append(cell(String.join(", ", statement.tableNames()))).append(" \| `").append(cell(statement.sourcePath().toString())).append("` \|\n"))` |
-| tables | Comparator | comparing | `Comparator.comparing(TableUsageDoc::tableName)` |
-| tables | Comparator.comparing(TableUsageDoc::tableName) | thenComparing | `Comparator.comparing(TableUsageDoc::tableName).thenComparing(TableUsageDoc::usedBy)` |
-| tables | Comparator.comparing(TableUsageDoc::tableName).thenComparing(TableUsageDoc::usedBy) | thenComparing | `Comparator.comparing(TableUsageDoc::tableName).thenComparing(TableUsageDoc::usedBy).thenComparing(TableUsageDoc::sourceName)` |
-| tables |  | cell | `cell(usage.sourceName())` |
-| tables |  | cell | `cell(usage.sourcePath().toString())` |
-| tables |  | cell | `cell(usage.tableName())` |
-| tables |  | cell | `cell(usage.usageType())` |
-| tables |  | cell | `cell(usage.usedBy())` |
-| tables | markdown | append | `markdown.append("\| ")` |
-| tables | markdown.append("\| ") | append | `markdown.append("\| ").append(cell(usage.tableName()))` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())) | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ")` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ") | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy()))` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())) | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ")` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ") | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType()))` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())) | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ")` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ") | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName()))` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())) | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())).append(" \| `")` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())).append(" \| `") | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())).append(" \| `").append(cell(usage.sourcePath().toString()))` |
-| tables | markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())).append(" \| `").append(cell(usage.sourcePath().toString())) | append | `markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())).append(" \| `").append(cell(usage.sourcePath().toString())).append("` \|\n")` |
-| tables | markdown | append | `markdown.append("\| - \| - \| - \| - \| - \|\n")` |
-| tables | markdown | toString | `markdown.toString()` |
-| tables | usage | sourceName | `usage.sourceName()` |
-| tables | usage | sourcePath | `usage.sourcePath()` |
-| tables | usage.sourcePath() | toString | `usage.sourcePath().toString()` |
-| tables | usage | tableName | `usage.tableName()` |
-| tables | usage | usageType | `usage.usageType()` |
-| tables | usage | usedBy | `usage.usedBy()` |
-| tables | usages | isEmpty | `usages.isEmpty()` |
-| tables | usages | stream | `usages.stream()` |
-| tables | usages.stream() | sorted | `usages.stream().sorted(Comparator.comparing(TableUsageDoc::tableName).thenComparing(TableUsageDoc::usedBy).thenComparing(TableUsageDoc::sourceName))` |
-| tables | usages.stream().sorted(Comparator.comparing(TableUsageDoc::tableName).thenComparing(TableUsageDoc::usedBy).thenComparing(TableUsageDoc::sourceName)) | forEach | `usages.stream().sorted(Comparator.comparing(TableUsageDoc::tableName).thenComparing(TableUsageDoc::usedBy).thenComparing(TableUsageDoc::sourceName)).forEach(usage -> markdown.append("\| ").append(cell(usage.tableName())).append(" \| ").append(cell(usage.usedBy())).append(" \| ").append(cell(usage.usageType())).append(" \| ").append(cell(usage.sourceName())).append(" \| `").append(cell(usage.sourcePath().toString())).append("` \|\n"))` |
-| title | Character | toUpperCase | `Character.toUpperCase(lowercase.charAt(0))` |
-| title | lowercase | charAt | `lowercase.charAt(0)` |
-| title | lowercase | substring | `lowercase.substring(1)` |
-| title | type | name | `type.name()` |
-| title | type.name() | toLowerCase | `type.name().toLowerCase()` |
-| write | Files | writeString | `Files.writeString(path, content)` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| api |  | MarkdownRenderer | cell | `cell(endpoint.httpMethod())` |
+| api |  | MarkdownRenderer | cell | `cell(endpoint.methodName())` |
+| api |  | MarkdownRenderer | cell | `cell(endpoint.path())` |
+| api |  | MarkdownRenderer | cell | `cell(endpoint.sourcePath())` |
+| api |  | MarkdownRenderer | classLink | `classLink(endpoint.className(), "classes/", classNames)` |
+| api |  | MarkdownRenderer | classNames | `classNames(result.classes())` |
+| api | result | AnalysisResult | classes | `result.classes()` |
+| api | result | AnalysisResult | endpoints | `result.endpoints()` |
+| appendMapperStatementRelations |  | MarkdownRenderer | cell | `cell(String.join(", ", relation.tableNames()))` |
+| appendMapperStatementRelations |  | MarkdownRenderer | cell | `cell(relation.mapperMethodName())` |
+| appendMapperStatementRelations |  | MarkdownRenderer | cell | `cell(relation.statementId())` |
+| appendMethodCallOverview |  | MarkdownRenderer | cell | `cell(relation.expression())` |
+| appendMethodCallOverview |  | MarkdownRenderer | cell | `cell(relation.sourceMethodName())` |
+| appendMethodCallOverview |  | MarkdownRenderer | cell | `cell(relation.targetMethodName())` |
+| appendMethodCallOverview |  | MarkdownRenderer | classLink | `classLink(relation.sourceClassName(), "classes/", classNames)` |
+| appendMethodCallOverview |  | MarkdownRenderer | classLink | `classLink(relation.targetClassName(), "classes/", classNames)` |
+| appendMethodCallOverview |  | MarkdownRenderer | classNames | `classNames(result.classes())` |
+| appendMethodCallOverview | result | AnalysisResult | classes | `result.classes()` |
+| appendMethodCallOverview | result | AnalysisResult | methodCallRelations | `result.methodCallRelations()` |
+| appendMethodCallOverview |  | MarkdownRenderer | sortedMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations())` |
+| appendMethodCallRelations |  | MarkdownRenderer | cell | `cell(relation.expression())` |
+| appendMethodCallRelations |  | MarkdownRenderer | cell | `cell(relation.expression())` |
+| appendMethodCallRelations |  | MarkdownRenderer | cell | `cell(relation.sourceMethodName())` |
+| appendMethodCallRelations |  | MarkdownRenderer | cell | `cell(relation.targetMethodName())` |
+| appendMethodCallRelations |  | MarkdownRenderer | classLink | `classLink(relation.sourceClassName(), "", classNames)` |
+| appendMethodCallRelations |  | MarkdownRenderer | classLink | `classLink(relation.targetClassName(), "", classNames)` |
+| appendMethodCallRelations |  | MarkdownRenderer | classNames | `classNames(result.classes())` |
+| appendMethodCallRelations | result | AnalysisResult | classes | `result.classes()` |
+| appendMethodCallRelations | result | AnalysisResult | methodCallRelations | `result.methodCallRelations()` |
+| appendMethodCallRelations | result | AnalysisResult | methodCallRelations | `result.methodCallRelations()` |
+| appendMethodCallRelations |  | MarkdownRenderer | sortedMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations().stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
+| appendMethodCallRelations |  | MarkdownRenderer | sortedMethodCallRelations | `sortedMethodCallRelations(result.methodCallRelations().stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
+| appendMethodCalls |  | MarkdownRenderer | cell | `cell(call.calledMethodName())` |
+| appendMethodCalls |  | MarkdownRenderer | cell | `cell(call.expression())` |
+| appendMethodCalls |  | MarkdownRenderer | cell | `cell(call.resolvedTargetClassName())` |
+| appendMethodCalls |  | MarkdownRenderer | cell | `cell(call.scopeName())` |
+| appendMethodCalls |  | MarkdownRenderer | cell | `cell(call.sourceMethodName())` |
+| appendMyBatisStatements |  | MarkdownRenderer | cell | `cell(String.join(", ", statement.tableNames()))` |
+| appendMyBatisStatements |  | MarkdownRenderer | cell | `cell(statement.sourcePath().toString())` |
+| appendMyBatisStatements |  | MarkdownRenderer | cell | `cell(statement.statementId())` |
+| appendRelatedClasses |  | MarkdownRenderer | cell | `cell(relation.sourceMemberName())` |
+| appendRelatedClasses |  | MarkdownRenderer | cell | `cell(relation.sourceMemberName())` |
+| appendRelatedClasses |  | MarkdownRenderer | classLink | `classLink(relation.sourceClassName(), "", classNames)` |
+| appendRelatedClasses |  | MarkdownRenderer | classLink | `classLink(relation.targetClassName(), "", classNames)` |
+| appendRelatedClasses |  | MarkdownRenderer | sortedRelations | `sortedRelations(relations.stream().filter(relation -> relation.sourceClassName().equals(className)).toList())` |
+| appendRelatedClasses |  | MarkdownRenderer | sortedRelations | `sortedRelations(relations.stream().filter(relation -> relation.targetClassName().equals(className)).toList())` |
+| appendRelatedTables |  | MarkdownRenderer | cell | `cell(statement.statementId())` |
+| appendRelatedTables |  | MarkdownRenderer | cell | `cell(tableName)` |
+| architecture |  | MarkdownRenderer | appendMethodCallOverview | `appendMethodCallOverview(markdown, result)` |
+| architecture |  | MarkdownRenderer | cell | `cell(relation.sourceMemberName())` |
+| architecture |  | MarkdownRenderer | classLink | `classLink(relation.sourceClassName(), "classes/", classNames)` |
+| architecture |  | MarkdownRenderer | classLink | `classLink(relation.targetClassName(), "classes/", classNames)` |
+| architecture |  | MarkdownRenderer | classNames | `classNames(result.classes())` |
+| architecture | result | AnalysisResult | classes | `result.classes()` |
+| architecture | result | AnalysisResult | classes | `result.classes()` |
+| architecture | result | AnalysisResult | relations | `result.relations()` |
+| architecture |  | MarkdownRenderer | sortedRelations | `sortedRelations(result.relations())` |
+| architecture |  | MarkdownRenderer | title | `title(type)` |
+| classLink |  | MarkdownRenderer | cell | `cell(className)` |
+| classLink |  | MarkdownRenderer | cell | `cell(className)` |
+| classPage |  | MarkdownRenderer | appendCodeList | `appendCodeList(markdown, classDoc.annotations())` |
+| classPage |  | MarkdownRenderer | appendMapperStatementRelations | `appendMapperStatementRelations(markdown, classDoc.className(), result.mapperStatementRelations())` |
+| classPage |  | MarkdownRenderer | appendMethodCallRelations | `appendMethodCallRelations(markdown, classDoc.className(), result)` |
+| classPage |  | MarkdownRenderer | appendMethodCalls | `appendMethodCalls(markdown, classDoc.className(), result.methodCalls())` |
+| classPage |  | MarkdownRenderer | appendMyBatisStatements | `appendMyBatisStatements(markdown, mapperStatements)` |
+| classPage |  | MarkdownRenderer | appendRelatedClasses | `appendRelatedClasses(markdown, classDoc.className(), result.relations(), classNames(result.classes()))` |
+| classPage |  | MarkdownRenderer | appendRelatedTables | `appendRelatedTables(markdown, mapperStatements)` |
+| classPage |  | MarkdownRenderer | cell | `cell(String.join(", ", field.annotations()))` |
+| classPage |  | MarkdownRenderer | cell | `cell(String.join(", ", method.annotations()))` |
+| classPage |  | MarkdownRenderer | cell | `cell(field.name())` |
+| classPage |  | MarkdownRenderer | cell | `cell(field.type())` |
+| classPage |  | MarkdownRenderer | cell | `cell(method.methodName())` |
+| classPage |  | MarkdownRenderer | cell | `cell(method.returnType())` |
+| classPage |  | MarkdownRenderer | cell | `cell(parameters(method))` |
+| classPage | classDoc | ClassDoc | annotations | `classDoc.annotations()` |
+| classPage | classDoc | ClassDoc | className | `classDoc.className()` |
+| classPage | classDoc | ClassDoc | className | `classDoc.className()` |
+| classPage | classDoc | ClassDoc | className | `classDoc.className()` |
+| classPage | classDoc | ClassDoc | className | `classDoc.className()` |
+| classPage | classDoc | ClassDoc | className | `classDoc.className()` |
+| classPage | classDoc | ClassDoc | componentType | `classDoc.componentType()` |
+| classPage | classDoc | ClassDoc | declarationKind | `classDoc.declarationKind()` |
+| classPage | classDoc | ClassDoc | fields | `classDoc.fields()` |
+| classPage | classDoc | ClassDoc | fields | `classDoc.fields()` |
+| classPage | classDoc | ClassDoc | methods | `classDoc.methods()` |
+| classPage | classDoc | ClassDoc | methods | `classDoc.methods()` |
+| classPage | classDoc | ClassDoc | packageName | `classDoc.packageName()` |
+| classPage | classDoc | ClassDoc | roleSummary | `classDoc.roleSummary()` |
+| classPage | classDoc | ClassDoc | sourcePath | `classDoc.sourcePath()` |
+| classPage |  | MarkdownRenderer | classNames | `classNames(result.classes())` |
+| classPage |  | MarkdownRenderer | matchingMyBatisStatements | `matchingMyBatisStatements(classDoc, result.sqlStatements())` |
+| classPage |  | MarkdownRenderer | parameters | `parameters(method)` |
+| classPage | result | AnalysisResult | classes | `result.classes()` |
+| classPage | result | AnalysisResult | mapperStatementRelations | `result.mapperStatementRelations()` |
+| classPage | result | AnalysisResult | methodCalls | `result.methodCalls()` |
+| classPage | result | AnalysisResult | relations | `result.relations()` |
+| classPage | result | AnalysisResult | sqlStatements | `result.sqlStatements()` |
+| impactMap |  | MarkdownRenderer | cell | `cell(row.api())` |
+| impactMap |  | MarkdownRenderer | cell | `cell(row.controller())` |
+| impactMap |  | MarkdownRenderer | cell | `cell(row.mapper())` |
+| impactMap |  | MarkdownRenderer | cell | `cell(row.service())` |
+| impactMap |  | MarkdownRenderer | cell | `cell(row.statement())` |
+| impactMap |  | MarkdownRenderer | cell | `cell(row.tables())` |
+| impactMap |  | MarkdownRenderer | impactRows | `impactRows(result)` |
+| impactRows |  | MarkdownRenderer | componentType | `componentType(relation.targetClassName(), result.classes())` |
+| impactRows | endpoint | ApiEndpointDoc | className | `endpoint.className()` |
+| impactRows | endpoint | ApiEndpointDoc | className | `endpoint.className()` |
+| impactRows | endpoint | ApiEndpointDoc | httpMethod | `endpoint.httpMethod()` |
+| impactRows | endpoint | ApiEndpointDoc | methodName | `endpoint.methodName()` |
+| impactRows | endpoint | ApiEndpointDoc | methodName | `endpoint.methodName()` |
+| impactRows | endpoint | ApiEndpointDoc | path | `endpoint.path()` |
+| impactRows |  | MarkdownRenderer | isMapper | `isMapper(relation.targetClassName(), result)` |
+| impactRows | mapperCall | MethodCallRelationDoc | targetClassName | `mapperCall.targetClassName()` |
+| impactRows | mapperCall | MethodCallRelationDoc | targetClassName | `mapperCall.targetClassName()` |
+| impactRows | mapperCall | MethodCallRelationDoc | targetMethodName | `mapperCall.targetMethodName()` |
+| impactRows | mapperCall | MethodCallRelationDoc | targetMethodName | `mapperCall.targetMethodName()` |
+| impactRows |  | MarkdownRenderer | methodName | `methodName(endpoint.className(), endpoint.methodName())` |
+| impactRows |  | MarkdownRenderer | methodName | `methodName(mapperCall.targetClassName(), mapperCall.targetMethodName())` |
+| impactRows |  | MarkdownRenderer | methodName | `methodName(serviceCall.targetClassName(), serviceCall.targetMethodName())` |
+| impactRows | result | AnalysisResult | classes | `result.classes()` |
+| impactRows | result | AnalysisResult | endpoints | `result.endpoints()` |
+| impactRows | result | AnalysisResult | mapperStatementRelations | `result.mapperStatementRelations()` |
+| impactRows | result | AnalysisResult | methodCallRelations | `result.methodCallRelations()` |
+| impactRows | result | AnalysisResult | methodCallRelations | `result.methodCallRelations()` |
+| impactRows | serviceCall | MethodCallRelationDoc | targetClassName | `serviceCall.targetClassName()` |
+| impactRows | serviceCall | MethodCallRelationDoc | targetClassName | `serviceCall.targetClassName()` |
+| impactRows | serviceCall | MethodCallRelationDoc | targetMethodName | `serviceCall.targetMethodName()` |
+| impactRows | serviceCall | MethodCallRelationDoc | targetMethodName | `serviceCall.targetMethodName()` |
+| index |  | MarkdownRenderer | displaySourceRoot | `displaySourceRoot(overview.sourceRoot())` |
+| index | overview | ProjectOverview | classCount | `overview.classCount()` |
+| index | overview | ProjectOverview | controllerCount | `overview.controllerCount()` |
+| index | overview | ProjectOverview | endpointCount | `overview.endpointCount()` |
+| index | overview | ProjectOverview | entityCount | `overview.entityCount()` |
+| index | overview | ProjectOverview | projectName | `overview.projectName()` |
+| index | overview | ProjectOverview | repositoryCount | `overview.repositoryCount()` |
+| index | overview | ProjectOverview | serviceCount | `overview.serviceCount()` |
+| index | overview | ProjectOverview | sourceRoot | `overview.sourceRoot()` |
+| isMapper | result | AnalysisResult | classes | `result.classes()` |
+| isMapper | result | AnalysisResult | mapperStatementRelations | `result.mapperStatementRelations()` |
+| matchingMyBatisStatements | classDoc | ClassDoc | className | `classDoc.className()` |
+| matchingMyBatisStatements | classDoc | ClassDoc | className | `classDoc.className()` |
+| matchingMyBatisStatements | classDoc | ClassDoc | packageName | `classDoc.packageName()` |
+| matchingMyBatisStatements | classDoc | ClassDoc | packageName | `classDoc.packageName()` |
+| mybatis |  | MarkdownRenderer | cell | `cell(first.ownerName())` |
+| mybatis |  | MarkdownRenderer | cell | `cell(first.sourcePath().toString())` |
+| mybatis | first | SqlStatementDoc | ownerName | `first.ownerName()` |
+| mybatis | first | SqlStatementDoc | sourcePath | `first.sourcePath()` |
+| parameters | method | MethodDoc | parameters | `method.parameters()` |
+| render |  | MarkdownRenderer | api | `api(result)` |
+| render |  | MarkdownRenderer | architecture | `architecture(result)` |
+| render | classDoc | ClassDoc | className | `classDoc.className()` |
+| render |  | MarkdownRenderer | classPage | `classPage(classDoc, result)` |
+| render |  | MarkdownRenderer | configurations | `configurations(result.configs())` |
+| render |  | MarkdownRenderer | impactMap | `impactMap(result)` |
+| render |  | MarkdownRenderer | index | `index(result.overview())` |
+| render |  | MarkdownRenderer | mybatis | `mybatis(result.sqlStatements())` |
+| render | result | AnalysisResult | classes | `result.classes()` |
+| render | result | AnalysisResult | configs | `result.configs()` |
+| render | result | AnalysisResult | overview | `result.overview()` |
+| render | result | AnalysisResult | sqlStatements | `result.sqlStatements()` |
+| render | result | AnalysisResult | sqlStatements | `result.sqlStatements()` |
+| render | result | AnalysisResult | tableUsages | `result.tableUsages()` |
+| render |  | MarkdownRenderer | sql | `sql(result.sqlStatements())` |
+| render |  | MarkdownRenderer | tables | `tables(result.tableUsages())` |
+| render |  | MarkdownRenderer | write | `write(classesDirectory.resolve(classDoc.className() + ".md"), classPage(classDoc, result))` |
+| render |  | MarkdownRenderer | write | `write(configsDirectory.resolve("application.md"), configurations(result.configs()))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("_config.yml"), "title: CodeAtlas\ntheme: minima\n")` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("api.md"), api(result))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("architecture.md"), architecture(result))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("impact-map.md"), impactMap(result))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("index.md"), index(result.overview()))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("mybatis.md"), mybatis(result.sqlStatements()))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("sql.md"), sql(result.sqlStatements()))` |
+| render |  | MarkdownRenderer | write | `write(output.resolve("tables.md"), tables(result.tableUsages()))` |
+| sql |  | MarkdownRenderer | cell | `cell(String.join(", ", statement.tableNames()))` |
+| sql |  | MarkdownRenderer | cell | `cell(statement.ownerName())` |
+| sql |  | MarkdownRenderer | cell | `cell(statement.sourcePath().toString())` |
+| sql |  | MarkdownRenderer | cell | `cell(statement.sql())` |
+| sql |  | MarkdownRenderer | cell | `cell(statement.statementId())` |
+| tables |  | MarkdownRenderer | cell | `cell(usage.sourceName())` |
+| tables |  | MarkdownRenderer | cell | `cell(usage.sourcePath().toString())` |
+| tables |  | MarkdownRenderer | cell | `cell(usage.tableName())` |
+| tables |  | MarkdownRenderer | cell | `cell(usage.usageType())` |
+| tables |  | MarkdownRenderer | cell | `cell(usage.usedBy())` |
+| title | type | ComponentType | name | `type.name()` |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 594.
 
 ## Related Classes
 
@@ -572,8 +575,12 @@ None
 | [ClassRelationDoc](ClassRelationDoc.md) | METHOD_PARAMETER | relations |
 | [ClassRelationDoc](ClassRelationDoc.md) | METHOD_RETURN_TYPE | sortedRelations |
 | [ComponentType](ComponentType.md) | METHOD_PARAMETER | type |
+| [ComponentType](ComponentType.md) | METHOD_RETURN_TYPE | componentType |
 | [ConfigDoc](ConfigDoc.md) | METHOD_PARAMETER | configs |
+| [MapperStatementRelationDoc](MapperStatementRelationDoc.md) | METHOD_PARAMETER | relations |
 | [MethodCallDoc](MethodCallDoc.md) | METHOD_PARAMETER | methodCalls |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md) | METHOD_PARAMETER | relations |
+| [MethodCallRelationDoc](MethodCallRelationDoc.md) | METHOD_RETURN_TYPE | sortedMethodCallRelations |
 | [MethodDoc](MethodDoc.md) | METHOD_PARAMETER | method |
 | [ProjectOverview](ProjectOverview.md) | METHOD_PARAMETER | overview |
 | [SqlStatementDoc](SqlStatementDoc.md) | METHOD_PARAMETER | statements |

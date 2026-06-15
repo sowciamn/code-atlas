@@ -28,13 +28,31 @@
 | --- | --- | --- |
 | - | - | - |
 
+## Method Call Relations
+
+### Outgoing Calls
+
+| Target | Expression |
+| --- | --- |
+| - | - |
+
+### Incoming Calls
+
+| Source | Expression |
+| --- | --- |
+| - | - |
+
 ## Method Calls
 
-| Source Method | Scope | Called Method | Expression |
-| --- | --- | --- | --- |
-| main | System | exit | `System.exit(exitCode)` |
-| main | new CommandLine(new CodeAtlasCli()) | execute | `new CommandLine(new CodeAtlasCli()).execute(args)` |
-| run | CommandLine | usage | `CommandLine.usage(this, System.out)` |
+### Project Calls
+
+| Source Method | Scope | Resolved Target | Called Method | Expression |
+| --- | --- | --- | --- | --- |
+| - | - | - | - | - |
+
+### Library / Utility Calls
+
+Library / Utility calls are omitted from this page. Count: 3.
 
 ## Related Classes
 

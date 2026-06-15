@@ -4,7 +4,7 @@
 
 * Project: `code-atlas`
 * Source: `/code-atlas`
-* Classes: 37
+* Classes: 42
 * API Endpoints: 0
 * Controllers: 0
 * Services: 0
@@ -14,6 +14,7 @@
 ## Documents
 
 * [Architecture](architecture.md)
+* [Impact Map](impact-map.md)
 * [API](api.md)
 * [SQL Statements](sql.md)
 * [Tables](tables.md)
