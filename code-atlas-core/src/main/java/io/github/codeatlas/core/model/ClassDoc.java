@@ -14,6 +14,7 @@ import java.util.List;
  * @param annotations 型に付与されたアノテーション名
  * @param methods 型で宣言されたメソッド
  * @param fields 型で宣言されたフィールド
+ * @param roleSummary ソースから機械的に判定した型の役割説明
  */
 public record ClassDoc(
         String packageName,
@@ -23,7 +24,8 @@ public record ClassDoc(
         ComponentType componentType,
         List<String> annotations,
         List<MethodDoc> methods,
-        List<FieldDoc> fields
+        List<FieldDoc> fields,
+        String roleSummary
 ) {
     public ClassDoc {
         annotations = List.copyOf(annotations);
@@ -39,6 +41,18 @@ public record ClassDoc(
      */
     public ClassDoc withComponentType(ComponentType type) {
         return new ClassDoc(
-                packageName, className, declarationKind, sourcePath, type, annotations, methods, fields);
+                packageName, className, declarationKind, sourcePath, type, annotations, methods, fields, roleSummary);
+    }
+
+    /**
+     * 解析済み情報を維持したまま役割説明だけを変更したコピーを返す。
+     *
+     * @param summary 新しい役割説明
+     * @return 役割説明を変更した型情報
+     */
+    public ClassDoc withRoleSummary(String summary) {
+        return new ClassDoc(
+                packageName, className, declarationKind, sourcePath, componentType,
+                annotations, methods, fields, summary);
     }
 }

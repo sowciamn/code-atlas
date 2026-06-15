@@ -90,7 +90,8 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
                 0,
                 0,
                 0);
-        return new AnalysisResult(overview, classes, List.of(), configs, relations);
+        return new AnalysisResult(
+                overview, classes, List.of(), configs, relations, List.of(), List.of());
     }
 
     /**
@@ -190,7 +191,8 @@ public final class JavaAnalyzer implements CodeAnalyzerPlugin {
                 ComponentType.UNKNOWN,
                 annotationNames(type.getAnnotations()),
                 methods,
-                fields);
+                fields,
+                new RoleResolver().resolve(type));
     }
 
     private void extractRelations(

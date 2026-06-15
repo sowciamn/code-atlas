@@ -14,20 +14,23 @@ class SourceScannerTest {
     Path tempDir;
 
     @Test
-    void collectsJavaAndApplicationConfigAndExcludesGeneratedDirectories() throws Exception {
+    void collectsSourcesAndExcludesGeneratedAndDocumentationDirectories() throws Exception {
         Path javaFile = create("src/main/java/example/App.java");
         Path configFile = create("src/main/resources/application.yml");
+        Path mapperXml = create("src/main/resources/mapper/AppMapper.xml");
         create("target/generated/Generated.java");
         create(".git/internal/Hidden.java");
+        create("docs/generated/Documented.java");
 
         ProjectSource source = new SourceScanner().scan(tempDir);
 
         assertThat(source.javaFiles()).containsExactly(javaFile);
-        assertThat(source.resourceFiles()).contains(configFile);
+        assertThat(source.resourceFiles()).containsExactly(configFile, mapperXml);
         assertThat(source.configFiles()).containsExactly(configFile);
         assertThat(source.javaFiles())
                 .noneMatch(path -> path.toString().contains("target"))
-                .noneMatch(path -> path.toString().contains(".git"));
+                .noneMatch(path -> path.toString().contains(".git"))
+                .noneMatch(path -> path.toString().contains("docs"));
     }
 
     private Path create(String relativePath) throws Exception {

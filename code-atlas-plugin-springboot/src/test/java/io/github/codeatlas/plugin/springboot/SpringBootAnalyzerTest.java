@@ -56,6 +56,12 @@ class SpringBootAnalyzerTest {
                 .extracting(doc -> doc.componentType())
                 .containsExactly(ComponentType.SERVICE);
         assertThat(result.classes())
+                .filteredOn(doc -> doc.className().equals("UserService"))
+                .extracting(doc -> doc.roleSummary())
+                .singleElement()
+                .asString()
+                .contains("業務ロジックコンポーネント");
+        assertThat(result.classes())
                 .filteredOn(doc -> doc.className().equals("UserRepository"))
                 .extracting(doc -> doc.componentType())
                 .containsExactly(ComponentType.REPOSITORY);

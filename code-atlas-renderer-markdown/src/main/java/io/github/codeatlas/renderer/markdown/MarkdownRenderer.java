@@ -8,13 +8,18 @@ import io.github.codeatlas.core.model.ComponentType;
 import io.github.codeatlas.core.model.ConfigDoc;
 import io.github.codeatlas.core.model.MethodDoc;
 import io.github.codeatlas.core.model.ProjectOverview;
+import io.github.codeatlas.core.model.SqlStatementDoc;
+import io.github.codeatlas.core.model.TableUsageDoc;
 import io.github.codeatlas.core.spi.DocumentationRenderer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -50,10 +55,13 @@ public final class MarkdownRenderer implements DocumentationRenderer {
 
         write(output.resolve("index.md"), index(result.overview()));
         write(output.resolve("architecture.md"), architecture(result));
-        write(output.resolve("api.md"), api(result.endpoints()));
+        write(output.resolve("api.md"), api(result));
+        write(output.resolve("sql.md"), sql(result.sqlStatements()));
+        write(output.resolve("tables.md"), tables(result.tableUsages()));
+        write(output.resolve("mybatis.md"), mybatis(result.sqlStatements()));
         for (ClassDoc classDoc : result.classes()) {
             write(classesDirectory.resolve(classDoc.className() + ".md"),
-                    classPage(classDoc, result.relations()));
+                    classPage(classDoc, result));
         }
         write(configsDirectory.resolve("application.md"), configurations(result.configs()));
         write(output.resolve("_config.yml"), "title: CodeAtlas\ntheme: minima\n");
@@ -78,6 +86,9 @@ public final class MarkdownRenderer implements DocumentationRenderer {
 
                 * [Architecture](architecture.md)
                 * [API](api.md)
+                * [SQL Statements](sql.md)
+                * [Tables](tables.md)
+                * [MyBatis Mappers](mybatis.md)
                 * [Classes](classes/)
                 * [Configurations](configs/application.md)
                 """.formatted(
@@ -139,12 +150,15 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                 .append("| Source | Target | Relation | Member |\n")
                 .append("| --- | --- | --- | --- |\n");
         List<ClassRelationDoc> relations = sortedRelations(result.relations());
+        Set<String> classNames = classNames(result.classes());
         if (relations.isEmpty()) {
             markdown.append("| - | - | - | - |\n");
         } else {
             relations.forEach(relation -> markdown
-                    .append("| ").append(cell(relation.sourceClassName()))
-                    .append(" | ").append(cell(relation.targetClassName()))
+                    .append("| ").append(classLink(
+                            relation.sourceClassName(), "classes/", classNames))
+                    .append(" | ").append(classLink(
+                            relation.targetClassName(), "classes/", classNames))
                     .append(" | ").append(relation.relationType())
                     .append(" | ").append(cell(relation.sourceMemberName()))
                     .append(" |\n"));
@@ -152,7 +166,9 @@ public final class MarkdownRenderer implements DocumentationRenderer {
         return markdown.toString();
     }
 
-    private String api(List<ApiEndpointDoc> endpoints) {
+    private String api(AnalysisResult result) {
+        List<ApiEndpointDoc> endpoints = result.endpoints();
+        Set<String> classNames = classNames(result.classes());
         StringBuilder markdown = new StringBuilder("""
                 # API Endpoints
 
@@ -165,14 +181,15 @@ public final class MarkdownRenderer implements DocumentationRenderer {
             endpoints.forEach(endpoint -> markdown
                     .append("| ").append(cell(endpoint.httpMethod()))
                     .append(" | `").append(cell(endpoint.path())).append('`')
-                    .append(" | ").append(cell(endpoint.className()))
+                    .append(" | ").append(classLink(
+                            endpoint.className(), "classes/", classNames))
                     .append(" | ").append(cell(endpoint.methodName()))
                     .append(" | `").append(cell(endpoint.sourcePath())).append("` |\n"));
         }
         return markdown.toString();
     }
 
-    private String classPage(ClassDoc classDoc, List<ClassRelationDoc> relations) {
+    private String classPage(ClassDoc classDoc, AnalysisResult result) {
         StringBuilder markdown = new StringBuilder()
                 .append("# ").append(classDoc.className()).append("\n\n")
                 .append("## Summary\n\n")
@@ -180,6 +197,8 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                 .append("* Declaration: `").append(classDoc.declarationKind()).append("`\n")
                 .append("* Type: `").append(classDoc.componentType()).append("`\n")
                 .append("* Source: `").append(classDoc.sourcePath()).append("`\n\n")
+                .append("## Role\n\n")
+                .append(classDoc.roleSummary()).append("\n\n")
                 .append("## Annotations\n\n");
         appendCodeList(markdown, classDoc.annotations());
         markdown.append("\n## Methods\n\n")
@@ -208,14 +227,17 @@ public final class MarkdownRenderer implements DocumentationRenderer {
                     .append(" | ").append(cell(String.join(", ", field.annotations())))
                     .append(" |\n"));
         }
-        appendRelatedClasses(markdown, classDoc.className(), relations);
+        appendRelatedClasses(
+                markdown, classDoc.className(), result.relations(), classNames(result.classes()));
+        appendMyBatisStatements(markdown, classDoc, result.sqlStatements());
         return markdown.toString();
     }
 
     private void appendRelatedClasses(
             StringBuilder markdown,
             String className,
-            List<ClassRelationDoc> relations
+            List<ClassRelationDoc> relations,
+            Set<String> classNames
     ) {
         List<ClassRelationDoc> outgoing = sortedRelations(relations.stream()
                 .filter(relation -> relation.sourceClassName().equals(className))
@@ -232,7 +254,7 @@ public final class MarkdownRenderer implements DocumentationRenderer {
             markdown.append("| - | - | - |\n");
         } else {
             outgoing.forEach(relation -> markdown
-                    .append("| ").append(cell(relation.targetClassName()))
+                    .append("| ").append(classLink(relation.targetClassName(), "", classNames))
                     .append(" | ").append(relation.relationType())
                     .append(" | ").append(cell(relation.sourceMemberName()))
                     .append(" |\n"));
@@ -245,11 +267,37 @@ public final class MarkdownRenderer implements DocumentationRenderer {
             markdown.append("| - | - | - |\n");
         } else {
             incoming.forEach(relation -> markdown
-                    .append("| ").append(cell(relation.sourceClassName()))
+                    .append("| ").append(classLink(relation.sourceClassName(), "", classNames))
                     .append(" | ").append(relation.relationType())
                     .append(" | ").append(cell(relation.sourceMemberName()))
                     .append(" |\n"));
         }
+    }
+
+    private void appendMyBatisStatements(
+            StringBuilder markdown,
+            ClassDoc classDoc,
+            List<SqlStatementDoc> statements
+    ) {
+        String qualifiedName = classDoc.packageName().isEmpty()
+                ? classDoc.className()
+                : classDoc.packageName() + "." + classDoc.className();
+        List<SqlStatementDoc> matching = statements.stream()
+                .filter(statement -> statement.ownerName().equals(qualifiedName))
+                .sorted(Comparator.comparing(SqlStatementDoc::statementId))
+                .toList();
+        if (matching.isEmpty()) {
+            return;
+        }
+
+        markdown.append("\n## MyBatis Statements\n\n")
+                .append("| Type | Statement ID | Tables | Source |\n")
+                .append("| --- | --- | --- | --- |\n");
+        matching.forEach(statement -> markdown
+                .append("| ").append(statement.statementType())
+                .append(" | ").append(cell(statement.statementId()))
+                .append(" | ").append(cell(String.join(", ", statement.tableNames())))
+                .append(" | `").append(cell(statement.sourcePath().toString())).append("` |\n"));
     }
 
     private List<ClassRelationDoc> sortedRelations(List<ClassRelationDoc> relations) {
@@ -264,6 +312,84 @@ public final class MarkdownRenderer implements DocumentationRenderer {
             configs.stream()
                     .sorted(Comparator.comparing(config -> config.sourcePath().toString()))
                     .forEach(config -> markdown.append("* `").append(config.sourcePath()).append("`\n"));
+        }
+        return markdown.toString();
+    }
+
+    private String sql(List<SqlStatementDoc> statements) {
+        StringBuilder markdown = new StringBuilder("""
+                # SQL Statements
+
+                | Type | Owner | Statement ID | SQL | Tables | Source |
+                | --- | --- | --- | --- | --- | --- |
+                """);
+        if (statements.isEmpty()) {
+            markdown.append("| - | - | - | - | - | - |\n");
+        } else {
+            statements.stream()
+                    .sorted(Comparator.comparing(SqlStatementDoc::ownerName)
+                            .thenComparing(SqlStatementDoc::statementId))
+                    .forEach(statement -> markdown
+                            .append("| ").append(statement.statementType())
+                            .append(" | ").append(cell(statement.ownerName()))
+                            .append(" | ").append(cell(statement.statementId()))
+                            .append(" | `").append(cell(statement.sql())).append('`')
+                            .append(" | ").append(cell(String.join(", ", statement.tableNames())))
+                            .append(" | `").append(cell(statement.sourcePath().toString()))
+                            .append("` |\n"));
+        }
+        return markdown.toString();
+    }
+
+    private String tables(List<TableUsageDoc> usages) {
+        StringBuilder markdown = new StringBuilder("""
+                # Tables
+
+                | Table | Used By | Usage Type | Statement | Source |
+                | --- | --- | --- | --- | --- |
+                """);
+        if (usages.isEmpty()) {
+            markdown.append("| - | - | - | - | - |\n");
+        } else {
+            usages.stream()
+                    .sorted(Comparator.comparing(TableUsageDoc::tableName)
+                            .thenComparing(TableUsageDoc::usedBy)
+                            .thenComparing(TableUsageDoc::sourceName))
+                    .forEach(usage -> markdown
+                            .append("| ").append(cell(usage.tableName()))
+                            .append(" | ").append(cell(usage.usedBy()))
+                            .append(" | ").append(cell(usage.usageType()))
+                            .append(" | ").append(cell(usage.sourceName()))
+                            .append(" | `").append(cell(usage.sourcePath().toString()))
+                            .append("` |\n"));
+        }
+        return markdown.toString();
+    }
+
+    private String mybatis(List<SqlStatementDoc> statements) {
+        Map<String, List<SqlStatementDoc>> byMapper = statements.stream()
+                .collect(Collectors.groupingBy(
+                        statement -> statement.ownerName() + "\n" + statement.sourcePath(),
+                        LinkedHashMap::new,
+                        Collectors.toList()));
+        StringBuilder markdown = new StringBuilder("""
+                # MyBatis Mappers
+
+                | Namespace | XML | Statements |
+                | --- | --- | --- |
+                """);
+        if (byMapper.isEmpty()) {
+            markdown.append("| - | - | - |\n");
+        } else {
+            byMapper.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        List<SqlStatementDoc> mapperStatements = entry.getValue();
+                        SqlStatementDoc first = mapperStatements.getFirst();
+                        markdown.append("| ").append(cell(first.ownerName()))
+                                .append(" | `").append(cell(first.sourcePath().toString()))
+                                .append("` | ").append(mapperStatements.size()).append(" |\n");
+                    });
         }
         return markdown.toString();
     }
@@ -292,6 +418,17 @@ public final class MarkdownRenderer implements DocumentationRenderer {
 
     private String cell(String value) {
         return value.replace("|", "\\|").replace("\n", " ");
+    }
+
+    private Set<String> classNames(List<ClassDoc> classes) {
+        return classes.stream().map(ClassDoc::className).collect(Collectors.toSet());
+    }
+
+    private String classLink(String className, String prefix, Set<String> classNames) {
+        if (!classNames.contains(className)) {
+            return cell(className);
+        }
+        return "[" + cell(className) + "](" + prefix + className + ".md)";
     }
 
     private void write(Path path, String content) throws IOException {

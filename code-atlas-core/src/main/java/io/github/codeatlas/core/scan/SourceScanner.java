@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 public final class SourceScanner {
     private static final Set<String> EXCLUDED_DIRECTORIES =
-            Set.of("target", "build", ".git", ".idea", ".vscode");
+            Set.of("target", "build", ".git", ".idea", ".vscode", "docs");
     private static final Pattern CONFIG_FILE =
             Pattern.compile("application(?:-[^.]+)?\\.(?:yml|yaml|properties)");
 

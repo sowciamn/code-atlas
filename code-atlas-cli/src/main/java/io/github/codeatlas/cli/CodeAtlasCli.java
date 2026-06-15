@@ -5,6 +5,7 @@ import io.github.codeatlas.core.model.AnalysisResult;
 import io.github.codeatlas.core.model.ProjectSource;
 import io.github.codeatlas.core.scan.SourceScanner;
 import io.github.codeatlas.plugin.java.JavaAnalyzer;
+import io.github.codeatlas.plugin.mybatis.MyBatisAnalyzer;
 import io.github.codeatlas.plugin.springboot.SpringBootAnalyzer;
 import io.github.codeatlas.renderer.markdown.MarkdownRenderer;
 import picocli.CommandLine;
@@ -73,8 +74,9 @@ public final class CodeAtlasCli implements Runnable {
 
             ProjectSource source = new SourceScanner().scan(sourceDirectory);
             AnalysisEngine engine = new AnalysisEngine(List.of(
+                    new JavaAnalyzer(),
                     new SpringBootAnalyzer(),
-                    new JavaAnalyzer()));
+                    new MyBatisAnalyzer()));
             AnalysisResult result = engine.analyze(source);
             new MarkdownRenderer().render(result, outputDirectory);
 

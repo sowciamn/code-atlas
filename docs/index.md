@@ -1,19 +1,7 @@
-# CodeAtlas
+# CodeAtlas Documentation
 
-## Project Overview
+## Samples
 
-* Project: `springboot-sample`
-* Source: `/code-atlas/examples/springboot-sample`
-* Classes: 6
-* API Endpoints: 3
-* Controllers: 1
-* Services: 1
-* Repositories: 1
-* Entities: 1
-
-## Documents
-
-* [Architecture](architecture.md)
-* [API](api.md)
-* [Classes](classes/)
-* [Configurations](configs/application.md)
+* [Spring Boot Sample](samples/springboot-sample/index.md)
+* [MyBatis Sample](samples/mybatis-sample/index.md)
+* [CodeAtlas Self Documentation](samples/code-atlas/index.md)

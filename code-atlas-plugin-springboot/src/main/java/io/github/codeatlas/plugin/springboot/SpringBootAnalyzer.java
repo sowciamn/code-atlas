@@ -18,6 +18,7 @@ import io.github.codeatlas.core.model.ProjectOverview;
 import io.github.codeatlas.core.model.ProjectSource;
 import io.github.codeatlas.core.spi.CodeAnalyzerPlugin;
 import io.github.codeatlas.plugin.java.JavaAnalyzer;
+import io.github.codeatlas.plugin.java.RoleResolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,9 +84,29 @@ public final class SpringBootAnalyzer implements CodeAnalyzerPlugin {
      */
     @Override
     public AnalysisResult analyze(ProjectSource source) {
-        AnalysisResult javaResult = javaAnalyzer.analyze(source);
-        List<ClassDoc> classes = javaResult.classes().stream()
-                .map(classDoc -> classDoc.withComponentType(componentType(classDoc)))
+        return enrich(source, javaAnalyzer.analyze(source));
+    }
+
+    /**
+     * Java共通解析結果へSpring固有の分類とAPIエンドポイントを追加する。
+     *
+     * @param source 収集済みのプロジェクトソース情報
+     * @param currentResult 先行プラグインまでの解析結果
+     * @return Spring固有情報を反映した解析結果
+     */
+    @Override
+    public AnalysisResult analyze(ProjectSource source, AnalysisResult currentResult) {
+        AnalysisResult base = currentResult.classes().isEmpty()
+                ? javaAnalyzer.analyze(source)
+                : currentResult;
+        return enrich(source, base);
+    }
+
+    private AnalysisResult enrich(ProjectSource source, AnalysisResult base) {
+        List<ClassDoc> classes = base.classes().stream()
+                .map(classDoc -> classDoc
+                        .withComponentType(componentType(classDoc))
+                        .withRoleSummary(roleSummary(classDoc)))
                 .sorted(Comparator.comparing(ClassDoc::className))
                 .toList();
         List<ApiEndpointDoc> endpoints = extractEndpoints(source);
@@ -100,7 +121,49 @@ public final class SpringBootAnalyzer implements CodeAnalyzerPlugin {
                 count(classes, ComponentType.REPOSITORY),
                 count(classes, ComponentType.ENTITY));
         return new AnalysisResult(
-                overview, classes, endpoints, javaResult.configs(), javaResult.relations());
+                overview,
+                classes,
+                endpoints,
+                base.configs(),
+                base.relations(),
+                base.sqlStatements(),
+                base.tableUsages());
+    }
+
+    /**
+     * Java共通解析で確定したSPI・CLIの役割を優先し、未判定またはDTOの場合だけ
+     * Springアノテーション由来の役割へ更新する。
+     *
+     * @param classDoc Java共通解析で得た型情報
+     * @return Spring固有判定を反映した役割説明
+     */
+    private String roleSummary(ClassDoc classDoc) {
+        String current = classDoc.roleSummary();
+        if (!RoleResolver.UNKNOWN_ROLE.equals(current)
+                && !current.contains("DTOです。")) {
+            return current;
+        }
+        for (String annotation : classDoc.annotations()) {
+            String role = switch (annotation) {
+                case "RestController" ->
+                        "このクラスは `@RestController` が付与されているため、Web API Controllerです。";
+                case "Controller" ->
+                        "このクラスは `@Controller` が付与されているため、Web Controllerです。";
+                case "Service" ->
+                        "このクラスは `@Service` が付与されているため、業務ロジックコンポーネントです。";
+                case "Repository" ->
+                        "このクラスは `@Repository` が付与されているため、データアクセスコンポーネントです。";
+                case "Entity" ->
+                        "このクラスは `@Entity` が付与されているため、永続化Entityです。";
+                case "Configuration" ->
+                        "このクラスは `@Configuration` が付与されているため、Spring設定クラスです。";
+                default -> null;
+            };
+            if (role != null) {
+                return role;
+            }
+        }
+        return current;
     }
 
     /**

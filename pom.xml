@@ -16,6 +16,7 @@
         <module>code-atlas-core</module>
         <module>code-atlas-plugin-java</module>
         <module>code-atlas-plugin-springboot</module>
+        <module>code-atlas-plugin-mybatis</module>
         <module>code-atlas-renderer-markdown</module>
         <module>code-atlas-cli</module>
     </modules>
